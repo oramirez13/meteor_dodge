@@ -234,15 +234,14 @@ class Game:
 
     def __init__(self):
         pygame.init()
-        pygame.font.init()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption(WINDOW_TITLE)
         self.clock = pygame.time.Clock()
 
-        # Fonts
-        self.font_large = pygame.font.SysFont("Liberation Sans", 48, bold=True)
-        self.font_medium = pygame.font.SysFont("Liberation Sans", 28)
-        self.font_small = pygame.font.SysFont("Liberation Sans", 20)
+        # Fonts (using Font instead of SysFont for Python 3.14 compatibility)
+        self.font_large = pygame.font.Font(None, 48)
+        self.font_medium = pygame.font.Font(None, 28)
+        self.font_small = pygame.font.Font(None, 20)
 
         self.player = Player()
         self.meteors = []
