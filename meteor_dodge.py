@@ -14,6 +14,7 @@ import pygame
 import random
 import sys
 import math
+import os
 
 # ============================================================
 # CONSTANTS
@@ -47,18 +48,73 @@ MAX_METEORS = 60
 SCORE_PER_SECOND = 1
 SCORE_PER_DODGE = 5
 
+# Images
+# Todas las imagenes deben estar dentro de esta carpeta, junto al archivo .py
+ASSETS_FOLDER = "img"
+BACKGROUND_IMAGE_FILE = "background.png"
+SHIP_IMAGE_FILE = "player.png"
+METEOR_IMAGE_FILES = ["meteor.png"]
+# La lista tiene un solo archivo por ahora. Si mas adelante agregas mas
+# variantes (por ejemplo meteor2.png), solo agrega el nombre a esta lista
+# y el juego los elegira al azar automaticamente.
+
+
+# ============================================================
+# IMAGE LOADING
+# ============================================================
+
+
+def load_image(filename, size=None, has_alpha=True):
+    """Load a single image file from the assets folder.
+
+    filename: nombre del archivo dentro de la carpeta assets.
+    size: tupla (ancho, alto) opcional para redimensionar la imagen.
+    has_alpha: True si la imagen tiene transparencia (PNG con fondo transparente).
+    """
+    path = os.path.join(ASSETS_FOLDER, filename)
+    # os.path.join arma la ruta completa uniendo la carpeta y el nombre
+    # del archivo, respetando el separador correcto del sistema operativo.
+    try:
+        image = pygame.image.load(path)
+        # pygame.image.load lee el archivo de imagen desde el disco.
+    except (pygame.error, FileNotFoundError):
+        # Si el archivo no existe o esta danado, se avisa con un mensaje
+        # claro en vez de mostrar un traceback dificil de entender.
+        print(f"No se pudo cargar la imagen: {path}")
+        print("Verifica que el archivo exista dentro de la carpeta assets.")
+        pygame.quit()
+        sys.exit()
+
+    if has_alpha:
+        image = image.convert_alpha()
+        # convert_alpha() prepara la imagen para dibujarse rapido y
+        # respeta las partes transparentes del PNG.
+    else:
+        image = image.convert()
+        # convert() prepara la imagen para dibujarse rapido, sin transparencia.
+        # Se usa para el fondo, que ocupa toda la pantalla.
+
+    if size is not None:
+        image = pygame.transform.scale(image, size)
+        # pygame.transform.scale cambia el tamano de la imagen al indicado.
+
+    return image
+
 
 # ============================================================
 # PLAYER CLASS
 # ============================================================
 
+
 class Player:
     """Player controlled by mouse movement."""
 
-    def __init__(self):
+    def __init__(self, image):
         self.x = WINDOW_WIDTH // 2
         self.y = WINDOW_HEIGHT - 80
         self.size = PLAYER_SIZE
+        self.image = image
+        # Guarda la imagen de la nave, ya cargada y escalada por el juego.
         self.lives = 3
         self.invincible = False
         self.invincible_timer = 0
@@ -96,49 +152,49 @@ class Player:
     def get_rect(self):
         """Get collision rectangle."""
         return pygame.Rect(
-            self.x - self.size // 2,
-            self.y - self.size // 2,
-            self.size,
-            self.size
+            self.x - self.size // 2, self.y - self.size // 2, self.size, self.size
         )
 
     def draw(self, surface):
         """Draw the player with trail effect."""
         # Draw trail
+        # El rastro se sigue dibujando con rectangulos simples, para
+        # mantener el efecto sin complicar el codigo con imagenes semi-transparentes.
         for i, (tx, ty) in enumerate(self.trail):
-            alpha = int(255 * (i / len(self.trail)) * 0.3)
             size = int(self.size * (i / len(self.trail)) * 0.5)
             if size > 0:
                 trail_rect = pygame.Rect(tx - size // 2, ty - size // 2, size, size)
                 pygame.draw.rect(surface, BLUE, trail_rect)
 
-        # Draw player (blink when invincible)
+        # Draw player image (blink when invincible)
         if not self.invincible or self.invincible_timer % 10 < 5:
-            rect = self.get_rect()
-            pygame.draw.rect(surface, BLUE, rect)
-            pygame.draw.rect(surface, WHITE, rect, 2)
-
-            # Draw cockpit
-            cockpit = pygame.Rect(self.x - 5, self.y - 8, 10, 12)
-            pygame.draw.rect(surface, WHITE, cockpit)
+            image_rect = self.image.get_rect(center=(self.x, self.y))
+            # get_rect(center=...) ubica la imagen centrada en la posicion
+            # actual de la nave, en vez de usar la esquina superior izquierda.
+            surface.blit(self.image, image_rect)
+            # blit dibuja la imagen de la nave sobre la pantalla.
 
 
 # ============================================================
 # METEOR CLASS
 # ============================================================
 
+
 class Meteor:
     """Falling meteor that the player must dodge."""
 
-    def __init__(self, speed=None):
+    def __init__(self, meteor_images, speed=None):
         self.size = random.randint(15, 35)
         self.x = random.randint(self.size, WINDOW_WIDTH - self.size)
         self.y = -self.size
         self.speed = speed or random.uniform(METEOR_MIN_SPEED, METEOR_MAX_SPEED)
         self.rotation = random.uniform(0, 360)
         self.rotation_speed = random.uniform(-5, 5)
-        self.color = random.choice([RED, ORANGE, YELLOW])
         self.trail = []
+
+        # Elige una imagen al azar de la lista y la escala al tamano de este meteorito
+        chosen_image = random.choice(meteor_images)
+        self.image = pygame.transform.scale(chosen_image, (self.size, self.size))
 
     def update(self):
         """Move meteor downward."""
@@ -156,31 +212,31 @@ class Meteor:
     def get_rect(self):
         """Get collision rectangle."""
         return pygame.Rect(
-            self.x - self.size // 2,
-            self.y - self.size // 2,
-            self.size,
-            self.size
+            self.x - self.size // 2, self.y - self.size // 2, self.size, self.size
         )
 
     def draw(self, surface):
         """Draw the meteor with trail."""
         # Draw trail
         for i, (tx, ty) in enumerate(self.trail):
-            alpha = int(255 * (i / len(self.trail)) * 0.3)
             size = int(self.size * (i / len(self.trail)) * 0.6)
             if size > 0:
                 trail_rect = pygame.Rect(tx - size // 2, ty - size // 2, size, size)
                 pygame.draw.rect(surface, GRAY, trail_rect)
 
-        # Draw meteor
-        rect = self.get_rect()
-        pygame.draw.rect(surface, self.color, rect)
-        pygame.draw.rect(surface, WHITE, rect, 1)
+        # Draw meteor image, rotada segun su rotacion actual
+        rotated_image = pygame.transform.rotate(self.image, self.rotation)
+        # pygame.transform.rotate gira la imagen el numero de grados indicado.
+        image_rect = rotated_image.get_rect(center=(self.x, self.y))
+        # Se vuelve a centrar despues de rotar, porque al girar la imagen
+        # su rectangulo contenedor cambia de tamano.
+        surface.blit(rotated_image, image_rect)
 
 
 # ============================================================
 # EXPLOSION CLASS
 # ============================================================
+
 
 class Explosion:
     """Visual effect when a meteor hits the player."""
@@ -194,14 +250,16 @@ class Explosion:
         for _ in range(15):
             angle = random.uniform(0, 2 * math.pi)
             speed = random.uniform(2, 8)
-            self.particles.append({
-                "x": x,
-                "y": y,
-                "vx": math.cos(angle) * speed,
-                "vy": math.sin(angle) * speed,
-                "size": random.randint(2, 6),
-                "color": random.choice([RED, ORANGE, YELLOW, WHITE]),
-            })
+            self.particles.append(
+                {
+                    "x": x,
+                    "y": y,
+                    "vx": math.cos(angle) * speed,
+                    "vy": math.sin(angle) * speed,
+                    "size": random.randint(2, 6),
+                    "color": random.choice([RED, ORANGE, YELLOW, WHITE]),
+                }
+            )
 
     def update(self):
         """Update particle positions."""
@@ -216,8 +274,9 @@ class Explosion:
         for p in self.particles:
             if p["size"] > 0:
                 pygame.draw.rect(
-                    surface, p["color"],
-                    (int(p["x"]), int(p["y"]), p["size"], p["size"])
+                    surface,
+                    p["color"],
+                    (int(p["x"]), int(p["y"]), p["size"], p["size"]),
                 )
 
     def is_alive(self):
@@ -228,6 +287,7 @@ class Explosion:
 # ============================================================
 # GAME CLASS
 # ============================================================
+
 
 class Game:
     """Main game controller."""
@@ -243,7 +303,22 @@ class Game:
         self.font_medium = pygame.font.Font(None, 28)
         self.font_small = pygame.font.Font(None, 20)
 
-        self.player = Player()
+        # Cargar todas las imagenes del juego una sola vez, al iniciar.
+        # Cargarlas aqui (y no en cada cuadro) evita que el juego se vuelva lento.
+        self.background_image = load_image(
+            BACKGROUND_IMAGE_FILE, (WINDOW_WIDTH, WINDOW_HEIGHT), has_alpha=False
+        )
+        self.ship_image = load_image(
+            SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE), has_alpha=True
+        )
+        self.meteor_images = []
+        for filename in METEOR_IMAGE_FILES:
+            meteor_image = load_image(filename, has_alpha=True)
+            self.meteor_images.append(meteor_image)
+            # Aqui no se redimensiona todavia: cada meteorito escala su
+            # propia copia al tamano que le toco al azar (ver clase Meteor).
+
+        self.player = Player(self.ship_image)
         self.meteors = []
         self.explosions = []
         self.score = 0
@@ -261,7 +336,7 @@ class Game:
     def spawn_meteor(self, speed=None):
         """Spawn a new meteor at the top."""
         if len(self.meteors) < MAX_METEORS:
-            self.meteors.append(Meteor(speed))
+            self.meteors.append(Meteor(self.meteor_images, speed))
 
     def handle_events(self):
         """Process all input events."""
@@ -335,27 +410,15 @@ class Game:
             exp.update()
         self.explosions = [e for e in self.explosions if e.is_alive()]
 
-    def draw_stars(self):
-        """Draw background stars."""
-        # Use deterministic positions based on frame count for twinkling
-        random.seed(42)  # Fixed seed for consistent star positions
-        for _ in range(100):
-            x = random.randint(0, WINDOW_WIDTH)
-            y = random.randint(0, WINDOW_HEIGHT)
-            brightness = random.randint(100, 255)
-            size = random.choice([1, 1, 1, 2])
-            twinkle = math.sin(self.frame_count * 0.05 + x) * 30
-            color = (brightness + int(twinkle),) * 3
-            color = tuple(max(0, min(255, c)) for c in color)
-            pygame.draw.rect(self.screen, color, (x, y, size, size))
-        random.seed()  # Reset random seed
+    def draw_background(self):
+        """Draw the background image."""
+        self.screen.blit(self.background_image, (0, 0))
+        # Se dibuja la imagen de fondo completa, empezando en la esquina (0, 0).
 
     def draw_hud(self):
         """Draw heads-up display (score, lives, level)."""
         # Score
-        score_text = self.font_small.render(
-            f"Score: {self.score}", True, WHITE
-        )
+        score_text = self.font_small.render(f"Score: {self.score}", True, WHITE)
         self.screen.blit(score_text, (10, 10))
 
         # High Score
@@ -365,9 +428,7 @@ class Game:
         self.screen.blit(high_text, (WINDOW_WIDTH - high_text.get_width() - 10, 10))
 
         # Lives
-        lives_text = self.font_small.render(
-            f"Lives: {self.player.lives}", True, GREEN
-        )
+        lives_text = self.font_small.render(f"Lives: {self.player.lives}", True, GREEN)
         self.screen.blit(lives_text, (10, 35))
 
         # Level
@@ -386,18 +447,12 @@ class Game:
 
         # Game Over text
         go_text = self.font_large.render("GAME OVER", True, RED)
-        go_rect = go_text.get_rect(
-            center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 60)
-        )
+        go_rect = go_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 60))
         self.screen.blit(go_text, go_rect)
 
         # Final score
-        score_text = self.font_medium.render(
-            f"Score: {self.score}", True, WHITE
-        )
-        score_rect = score_text.get_rect(
-            center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
-        )
+        score_text = self.font_medium.render(f"Score: {self.score}", True, WHITE)
+        score_rect = score_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
         self.screen.blit(score_text, score_rect)
 
         # Level reached
@@ -420,7 +475,7 @@ class Game:
 
     def restart(self):
         """Restart the game."""
-        self.player = Player()
+        self.player = Player(self.ship_image)
         self.meteors = []
         self.explosions = []
         self.score = 0
@@ -440,8 +495,7 @@ class Game:
             self.update()
 
             # Draw everything
-            self.screen.fill(BLACK)
-            self.draw_stars()
+            self.draw_background()
 
             # Draw meteors
             for meteor in self.meteors:
