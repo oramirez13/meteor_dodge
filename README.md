@@ -14,6 +14,10 @@ A survival game where you dodge falling meteors using the mouse. Built with pyga
 git clone <repository-url>
 cd meteor_dodge
 
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
 ```
@@ -26,10 +30,10 @@ python meteor_dodge.py
 
 ## Controls
 
-| Input | Action |
-|-------|--------|
-| Mouse | Move the player ship |
-| ESC | Quit game |
+| Input         | Action                  |
+| ------------- | ----------------------- |
+| Mouse         | Move the player ship    |
+| ESC           | Quit game               |
 | SPACE / ENTER | Restart after game over |
 
 ## Features
