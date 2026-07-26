@@ -3,7 +3,8 @@
 Meteor Dodge - A survival game where you dodge falling meteors.
 
 Controls:
-    Mouse to move the player
+    Arrow keys or WASD to move the player
+    SPACE to shoot
     ESC to quit
     SPACE or ENTER to restart after game over
 
@@ -33,7 +34,6 @@ RED = (220, 50, 50)
 ORANGE = (255, 165, 0)
 YELLOW = (255, 255, 0)
 GRAY = (100, 100, 100)
-DARK_GRAY = (40, 40, 40)
 GREEN = (50, 200, 50)
 BLUE = (50, 100, 220)
 
@@ -48,9 +48,16 @@ MAX_METEORS = 60
 SCORE_PER_SECOND = 1
 SCORE_PER_DODGE = 5
 
+# Bullet settings
+BULLET_WIDTH = 4
+BULLET_HEIGHT = 12
+BULLET_SPEED = 12
+SHOOT_COOLDOWN = 15  # cuadros de espera entre disparo y disparo
+SCORE_PER_METEOR_DESTROYED = 15
+
 # Images
 # Todas las imagenes deben estar dentro de esta carpeta, junto al archivo .py
-ASSETS_FOLDER = "img"
+ASSETS_FOLDER = "assets/images"
 BACKGROUND_IMAGE_FILE = "background.png"
 SHIP_IMAGE_FILE = "player.png"
 METEOR_IMAGE_FILES = ["meteor.png"]
@@ -107,7 +114,7 @@ def load_image(filename, size=None, has_alpha=True):
 
 
 class Player:
-    """Player controlled by mouse movement."""
+    """Player controlled by the keyboard."""
 
     def __init__(self, image):
         self.x = WINDOW_WIDTH // 2
@@ -120,15 +127,22 @@ class Player:
         self.invincible_timer = 0
         self.trail = []
 
-    def update(self, mouse_pos):
-        """Update player position based on mouse."""
+    def update(self, keys_pressed):
+        """Update player position based on keyboard input."""
         # Store trail positions
         self.trail.append((self.x, self.y))
         if len(self.trail) > 10:
             self.trail.pop(0)
 
-        self.x = mouse_pos[0]
-        self.y = mouse_pos[1]
+        # Movimiento con flechas o WASD
+        if keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]:
+            self.x -= PLAYER_SPEED
+        if keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]:
+            self.x += PLAYER_SPEED
+        if keys_pressed[pygame.K_UP] or keys_pressed[pygame.K_w]:
+            self.y -= PLAYER_SPEED
+        if keys_pressed[pygame.K_DOWN] or keys_pressed[pygame.K_s]:
+            self.y += PLAYER_SPEED
 
         # Keep player within bounds
         self.x = max(self.size // 2, min(WINDOW_WIDTH - self.size // 2, self.x))
@@ -176,12 +190,49 @@ class Player:
 
 
 # ============================================================
+# BULLET CLASS
+# ============================================================
+
+
+class Bullet:
+    """Bullet fired by the player to destroy meteors."""
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.width = BULLET_WIDTH
+        self.height = BULLET_HEIGHT
+        self.speed = BULLET_SPEED
+
+    def update(self):
+        """Move bullet upward."""
+        self.y -= self.speed
+
+    def is_off_screen(self):
+        """Check if bullet has left the top of the screen."""
+        return self.y < -self.height
+
+    def get_rect(self):
+        """Get collision rectangle."""
+        return pygame.Rect(
+            self.x - self.width // 2,
+            self.y - self.height // 2,
+            self.width,
+            self.height
+        )
+
+    def draw(self, surface):
+        """Draw the bullet."""
+        pygame.draw.rect(surface, YELLOW, self.get_rect())
+
+
+# ============================================================
 # METEOR CLASS
 # ============================================================
 
 
 class Meteor:
-    """Falling meteor that the player must dodge."""
+    """Falling meteor that the player must dodge or shoot."""
 
     def __init__(self, meteor_images, speed=None):
         self.size = random.randint(15, 35)
@@ -239,7 +290,7 @@ class Meteor:
 
 
 class Explosion:
-    """Visual effect when a meteor hits the player."""
+    """Visual effect when a meteor is destroyed or hits the player."""
 
     def __init__(self, x, y):
         self.x = x
@@ -320,6 +371,10 @@ class Game:
 
         self.player = Player(self.ship_image)
         self.meteors = []
+        self.bullets = []
+        # Lista de balas actualmente en pantalla.
+        self.shoot_cooldown_timer = 0
+        # Cuenta cuantos cuadros faltan para poder disparar de nuevo.
         self.explosions = []
         self.score = 0
         self.high_score = 0
@@ -338,6 +393,14 @@ class Game:
         if len(self.meteors) < MAX_METEORS:
             self.meteors.append(Meteor(self.meteor_images, speed))
 
+    def shoot(self):
+        """Create a new bullet at the player's position, respecting the cooldown."""
+        if self.shoot_cooldown_timer <= 0:
+            bullet_x = self.player.x
+            bullet_y = self.player.y - self.player.size // 2
+            self.bullets.append(Bullet(bullet_x, bullet_y))
+            self.shoot_cooldown_timer = SHOOT_COOLDOWN
+
     def handle_events(self):
         """Process all input events."""
         for event in pygame.event.get():
@@ -354,6 +417,9 @@ class Game:
                     if event.key in (pygame.K_SPACE, pygame.K_RETURN):
                         self.restart()
                     return
+
+                if event.key == pygame.K_SPACE:
+                    self.shoot()
 
     def update(self):
         """Update game state."""
@@ -378,9 +444,18 @@ class Game:
         if self.frame_count % self.spawn_rate == 0:
             self.spawn_meteor()
 
+        # Update shoot cooldown
+        if self.shoot_cooldown_timer > 0:
+            self.shoot_cooldown_timer -= 1
+
         # Update player
-        mouse_pos = pygame.mouse.get_pos()
-        self.player.update(mouse_pos)
+        keys_pressed = pygame.key.get_pressed()
+        self.player.update(keys_pressed)
+
+        # Update bullets
+        for bullet in self.bullets:
+            bullet.update()
+        self.bullets = [b for b in self.bullets if not b.is_off_screen()]
 
         # Update meteors
         for meteor in self.meteors:
@@ -389,7 +464,19 @@ class Game:
         # Remove off-screen meteors
         self.meteors = [m for m in self.meteors if not m.is_off_screen()]
 
-        # Check collisions
+        # Check bullet vs meteor collisions
+        for bullet in self.bullets[:]:
+            bullet_rect = bullet.get_rect()
+            for meteor in self.meteors[:]:
+                if bullet_rect.colliderect(meteor.get_rect()):
+                    self.explosions.append(Explosion(meteor.x, meteor.y))
+                    self.meteors.remove(meteor)
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    self.score += SCORE_PER_METEOR_DESTROYED
+                    break
+
+        # Check player vs meteor collisions
         player_rect = self.player.get_rect()
         for meteor in self.meteors[:]:
             if player_rect.colliderect(meteor.get_rect()):
@@ -477,6 +564,8 @@ class Game:
         """Restart the game."""
         self.player = Player(self.ship_image)
         self.meteors = []
+        self.bullets = []
+        self.shoot_cooldown_timer = 0
         self.explosions = []
         self.score = 0
         self.frame_count = 0
@@ -500,6 +589,10 @@ class Game:
             # Draw meteors
             for meteor in self.meteors:
                 meteor.draw(self.screen)
+
+            # Draw bullets
+            for bullet in self.bullets:
+                bullet.draw(self.screen)
 
             # Draw explosions
             for exp in self.explosions:
