@@ -66,7 +66,7 @@ SHIP_IMAGE_FILE = "player.png"
 
 LEVELS = {
     1: {
-        "name": "Nebulosa",
+        "name": "Nebula",
         "background": "background_01.png",
         "meteor_min_speed": 3,
         "meteor_max_speed": 5,
@@ -77,7 +77,7 @@ LEVELS = {
         "has_enemy_ships": False,
     },
     2: {
-        "name": "Tormenta",
+        "name": "Storm",
         "background": "background_02.png",
         "meteor_min_speed": 4,
         "meteor_max_speed": 7,
@@ -88,7 +88,7 @@ LEVELS = {
         "has_enemy_ships": False,
     },
     3: {
-        "name": "Cinturon",
+        "name": "Belt",
         "background": "background_03.png",
         "meteor_min_speed": 5,
         "meteor_max_speed": 9,
@@ -110,7 +110,7 @@ LEVELS = {
         "has_enemy_ships": False,
     },
     5: {
-        "name": "Guerra",
+        "name": "Warzone",
         "background": "background_05.png",
         "meteor_min_speed": 4,
         "meteor_max_speed": 8,
@@ -134,36 +134,36 @@ MAX_LEVEL = 5
 def load_image(filename, size=None, has_alpha=True):
     """Load a single image file from the assets folder.
 
-    filename: nombre del archivo dentro de la carpeta assets.
-    size: tupla (ancho, alto) opcional para redimensionar la imagen.
-    has_alpha: True si la imagen tiene transparencia (PNG con fondo transparente).
+    filename: name of the file inside the assets folder.
+    size: optional (width, height) tuple to resize the image.
+    has_alpha: True if the image has transparency (PNG with transparent background).
     """
     path = os.path.join(ASSETS_FOLDER, filename)
-    # os.path.join arma la ruta completa uniendo la carpeta y el nombre
-    # del archivo, respetando el separador correcto del sistema operativo.
+    # os.path.join builds the full path by joining the folder and filename,
+    # respecting the correct separator for the operating system.
     try:
         image = pygame.image.load(path)
-        # pygame.image.load lee el archivo de imagen desde el disco.
+        # pygame.image.load reads the image file from disk.
     except (pygame.error, FileNotFoundError):
-        # Si el archivo no existe o esta danado, se avisa con un mensaje
-        # claro en vez de mostrar un traceback dificil de entender.
-        print(f"No se pudo cargar la imagen: {path}")
-        print("Verifica que el archivo exista dentro de la carpeta assets.")
+        # If the file does not exist or is corrupted, show a clear
+        # error message instead of a hard-to-read traceback.
+        print(f"Could not load image: {path}")
+        print("Make sure the file exists inside the assets folder.")
         pygame.quit()
         sys.exit()
 
     if has_alpha:
         image = image.convert_alpha()
-        # convert_alpha() prepara la imagen para dibujarse rapido y
-        # respeta las partes transparentes del PNG.
+        # convert_alpha() prepares the image for fast drawing and
+        # respects the transparent parts of the PNG.
     else:
         image = image.convert()
-        # convert() prepara la imagen para dibujarse rapido, sin transparencia.
-        # Se usa para el fondo, que ocupa toda la pantalla.
+        # convert() prepares the image for fast drawing without transparency.
+        # Used for the background that fills the entire screen.
 
     if size is not None:
         image = pygame.transform.scale(image, size)
-        # pygame.transform.scale cambia el tamano de la imagen al indicado.
+        # pygame.transform.scale resizes the image to the given dimensions.
 
     return image
 
@@ -181,7 +181,7 @@ class Player:
         self.y = WINDOW_HEIGHT - 80
         self.size = PLAYER_SIZE
         self.image = image
-        # Guarda la imagen de la nave, ya cargada y escalada por el juego.
+        # Stores the ship image, already loaded and scaled by the game.
         self.lives = 3
         self.invincible = False
         self.invincible_timer = 0
@@ -194,7 +194,7 @@ class Player:
         if len(self.trail) > 10:
             self.trail.pop(0)
 
-        # Movimiento con flechas o WASD
+        # Movement with arrow keys or WASD
         if keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]:
             self.x -= PLAYER_SPEED
         if keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]:
@@ -232,8 +232,8 @@ class Player:
     def draw(self, surface):
         """Draw the player with trail effect."""
         # Draw trail
-        # El rastro se sigue dibujando con rectangulos simples, para
-        # mantener el efecto sin complicar el codigo con imagenes semi-transparentes.
+        # The trail is drawn with simple rectangles to keep the
+        # effect without complicating the code with semi-transparent images.
         for i, (tx, ty) in enumerate(self.trail):
             size = int(self.size * (i / len(self.trail)) * 0.5)
             if size > 0:
@@ -243,10 +243,10 @@ class Player:
         # Draw player image (blink when invincible)
         if not self.invincible or self.invincible_timer % 10 < 5:
             image_rect = self.image.get_rect(center=(self.x, self.y))
-            # get_rect(center=...) ubica la imagen centrada en la posicion
-            # actual de la nave, en vez de usar la esquina superior izquierda.
+            # get_rect(center=...) places the image centered on the current
+            # position of the ship, instead of using the top-left corner.
             surface.blit(self.image, image_rect)
-            # blit dibuja la imagen de la nave sobre la pantalla.
+            # blit draws the ship image onto the screen.
 
 
 # ============================================================
@@ -257,19 +257,19 @@ class Player:
 class Bullet:
     """Bullet fired by the player to destroy meteors or enemy ships.
 
-    Soporta disparos en diferentes direcciones usando vx y vy.
-    Por defecto viaja hacia arriba (vy negativo = hacia arriba en pantalla).
+    Supports shooting in different directions using vx and vy.
+    By default it travels upward (negative vy = upward on screen).
     """
 
     def __init__(self, x, y, vx=0, vy=None):
-        # vx = velocidad horizontal (positivo = derecha, negativo = izquierda)
-        # vy = velocidad vertical (negativo = arriba en pantalla)
+        # vx = horizontal speed (positive = right, negative = left)
+        # vy = vertical speed (negative = upward on screen)
         self.x = x
         self.y = y
         self.width = BULLET_WIDTH
         self.height = BULLET_HEIGHT
         self.vx = vx
-        # Si no se proporciona vy, se usa -BULLET_SPEED (hacia arriba)
+        # If vy is not provided, use -BULLET_SPEED (upward)
         self.vy = vy if vy is not None else -BULLET_SPEED
 
     def update(self):
@@ -310,13 +310,13 @@ class Meteor:
         self.size = random.randint(15, 35)
         self.x = random.randint(self.size, WINDOW_WIDTH - self.size)
         self.y = -self.size
-        # speed_range es una tupla (min, max) con la velocidad del nivel actual
+        # speed_range is a (min, max) tuple with the current level's speed
         self.speed = random.uniform(speed_range[0], speed_range[1])
         self.rotation = random.uniform(0, 360)
         self.rotation_speed = random.uniform(-5, 5)
         self.trail = []
 
-        # Elige una imagen al azar de la lista y la escala al tamano de este meteorito
+        # Picks a random image from the list and scales it to this meteor's size
         chosen_image = random.choice(meteor_images)
         self.image = pygame.transform.scale(chosen_image, (self.size, self.size))
 
@@ -348,12 +348,12 @@ class Meteor:
                 trail_rect = pygame.Rect(tx - size // 2, ty - size // 2, size, size)
                 pygame.draw.rect(surface, GRAY, trail_rect)
 
-        # Draw meteor image, rotada segun su rotacion actual
+        # Draw meteor image, rotated according to its current rotation
         rotated_image = pygame.transform.rotate(self.image, self.rotation)
-        # pygame.transform.rotate gira la imagen el numero de grados indicado.
+        # pygame.transform.rotate rotates the image by the given number of degrees.
         image_rect = rotated_image.get_rect(center=(self.x, self.y))
-        # Se vuelve a centrar despues de rotar, porque al girar la imagen
-        # su rectangulo contenedor cambia de tamano.
+        # It is recentered after rotating, because when the image is rotated
+        # its bounding rectangle changes size.
         surface.blit(rotated_image, image_rect)
 
 
@@ -371,11 +371,11 @@ class EnemyShip:
         self.x = random.randint(self.size, WINDOW_WIDTH - self.size)
         self.y = -self.size
         self.speed = random.uniform(2, 4)
-        # Direccion horizontal: se mueve hacia un lado
+        # Horizontal direction: moves to one side
         self.direction = random.choice([-1, 1])
         self.image = image
         self.shoot_timer = random.randint(30, 90)
-        # Cada ciertos frames, la nave enemiga dispara un proyectil.
+        # Every few frames, the enemy ship fires a projectile.
         self.trail = []
         self.alive = True
 
@@ -386,12 +386,12 @@ class EnemyShip:
             self.trail.pop(0)
 
         self.y += self.speed
-        # Se mueve lateralmente rebotando en los bordes
+        # Moves laterally, bouncing off the edges
         self.x += self.direction * 1.5
         if self.x < self.size or self.x > WINDOW_WIDTH - self.size:
             self.direction *= -1
 
-        # Cuenta hacia atras para disparar
+        # Counts down to shoot
         self.shoot_timer -= 1
 
     def should_shoot(self):
@@ -420,8 +420,8 @@ class EnemyShip:
                 trail_rect = pygame.Rect(tx - size // 2, ty - size // 2, size, size)
                 pygame.draw.rect(surface, RED, trail_rect)
 
-        # Dibuja la imagen de la nave enemiga (volteada verticalmente
-        # para que apunte hacia abajo, hacia el jugador)
+        # Draw the enemy ship image (flipped vertically
+        # so it points downward toward the player)
         flipped_image = pygame.transform.flip(self.image, False, True)
         image_rect = flipped_image.get_rect(center=(self.x, self.y))
         surface.blit(flipped_image, image_rect)
@@ -538,23 +538,23 @@ class LevelNotification:
         if self.timer <= 0:
             return
 
-        # Fondo semi-transparente para la notificacion
+        # Semi-transparent background for the notification
         overlay = pygame.Surface((WINDOW_WIDTH, 120))
         overlay.fill(BLACK)
         overlay.set_alpha(150)
         overlay_rect = overlay.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
         surface.blit(overlay, overlay_rect)
 
-        # Texto del nivel
-        level_text = font_large.render("NIVEL COMPLETADO", True, YELLOW)
+        # Level text
+        level_text = font_large.render("LEVEL COMPLETE", True, YELLOW)
         level_rect = level_text.get_rect(
             center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20)
         )
         surface.blit(level_text, level_rect)
 
-        # Nombre del nuevo nivel
+        # New level name
         name_text = font_small.render(
-            f"Entrando a: {self.level_name}", True, WHITE
+            f"Entering: {self.level_name}", True, WHITE
         )
         name_rect = name_text.get_rect(
             center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 25)
@@ -581,24 +581,24 @@ class Game:
         self.font_medium = pygame.font.Font(None, 28)
         self.font_small = pygame.font.Font(None, 20)
 
-        # Cargar imagen de la nave del jugador
+        # Load player ship image
         self.ship_image = load_image(
             SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE), has_alpha=True
         )
 
-        # Cargar imagen de la nave enemiga (se usa la misma imagen del jugador
-        # pero se volteara al dibujarla para que apunte hacia abajo)
+        # Load enemy ship image (uses the same image as the player
+        # but will be flipped when drawn to point downward)
         self.enemy_ship_image = self.ship_image
 
-        # Cargar todas las imagenes de meteoritos una sola vez
+        # Load all meteor images once
         meteor_image_files = ["meteor.png"]
         self.meteor_images = []
         for filename in meteor_image_files:
             meteor_image = load_image(filename, has_alpha=True)
             self.meteor_images.append(meteor_image)
 
-        # Cargar fondos de todos los niveles y guardarlos en un diccionario
-        # para poder cambiarlos cuando el jugador avance de nivel.
+        # Load backgrounds for all levels and store them in a dictionary
+        # so they can be swapped when the player advances levels.
         self.backgrounds = {}
         for level_num, level_data in LEVELS.items():
             bg_file = level_data["background"]
@@ -613,24 +613,24 @@ class Game:
         self.explosions = []
         self.level_notification = None
 
-        # Score y control del juego
+        # Score and game control
         self.score = 0
         self.high_score = 0
         self.game_over = False
         self.running = True
         self.frame_count = 0
 
-        # Sistema de niveles
+        # Level system
         self.current_level = 1
         self.level_score = 0
-        # level_score es el puntaje acumulado DESDE QUE EMPEZO el nivel actual.
-        # Se usa para determinar si el jugador supera el umbral de avance.
+        # level_score is the score accumulated SINCE THE CURRENT LEVEL STARTED.
+        # It is used to determine if the player meets the advance threshold.
         self.level_timer = 0
-        # level_timer cuenta los cuadros que lleva en el nivel actual.
-        # Se usa para verificar que sobreviva mas de 60 segundos.
+        # level_timer counts the frames spent in the current level.
+        # It is used to verify the player survives more than 60 seconds.
         self.shoot_cooldown_timer = 0
 
-        # Spawn de meteoritos iniciales
+        # Spawn initial meteors
         level_data = LEVELS[self.current_level]
         speed_range = (level_data["meteor_min_speed"], level_data["meteor_max_speed"])
         for _ in range(INITIAL_METEORS):
@@ -644,13 +644,13 @@ class Game:
         """Spawn a new meteor at the top."""
         if len(self.meteors) < MAX_METEORS:
             if speed is not None:
-                # Si se pasa una velocidad exacta, se usa esa
+                # If an exact speed is passed, use that
                 meteor = Meteor(self.meteor_images, (speed, speed))
             elif speed_range is not None:
-                # Si se pasa un rango, se usa el rango del nivel actual
+                # If a range is passed, use the current level's range
                 meteor = Meteor(self.meteor_images, speed_range)
             else:
-                # Si no se pasa nada, se usa el rango por defecto del nivel
+                # If nothing is passed, use the level's default range
                 data = self.get_level_data()
                 meteor = Meteor(
                     self.meteor_images,
@@ -666,11 +666,11 @@ class Game:
     def shoot(self):
         """Create bullets at the player's position based on the current ammo type.
 
-        Cada tipo de municion crea balas de forma diferente:
-        - normal: una bala recta hacia arriba
-        - double: dos balas paralelas
-        - spread: tres balas en abanico (centro, izquierda, derecha)
-        - rapid: una bala recta pero con cooldown muy bajo
+        Each ammo type creates bullets differently:
+        - normal: one bullet straight up
+        - double: two parallel bullets
+        - spread: three bullets in a fan (center, left, right)
+        - rapid: one bullet straight up but with very low cooldown
         """
         level_data = self.get_level_data()
 
@@ -682,27 +682,27 @@ class Game:
         ammo_type = level_data["ammo_type"]
 
         if ammo_type == "normal":
-            # Disparo simple: una sola bala hacia arriba
+            # Single shot: one bullet straight up
             self.bullets.append(Bullet(bullet_x, bullet_y))
 
         elif ammo_type == "double":
-            # Disparo doble: dos balas paralelas separadas por 10 pixeles
+            # Double shot: two parallel bullets 10 pixels apart
             self.bullets.append(Bullet(bullet_x - 10, bullet_y))
             self.bullets.append(Bullet(bullet_x + 10, bullet_y))
 
         elif ammo_type == "spread":
-            # Disparo en abanico: tres balas con angulos diferentes
-            # vx = velocidad horizontal, vy = velocidad vertical (negativo = arriba)
+            # Spread shot: three bullets at different angles
+            # vx = horizontal speed, vy = vertical speed (negative = up)
             self.bullets.append(Bullet(bullet_x, bullet_y, vx=0))
-            # Las balas laterales se mueven hacia arriba y hacia un lado
+            # Side bullets move upward and to the side
             self.bullets.append(Bullet(bullet_x, bullet_y, vx=-3, vy=-BULLET_SPEED))
             self.bullets.append(Bullet(bullet_x, bullet_y, vx=3, vy=-BULLET_SPEED))
 
         elif ammo_type == "rapid":
-            # Disparo rapido: una bala igual que normal pero con cooldown corto
+            # Rapid fire: same as normal but with very short cooldown
             self.bullets.append(Bullet(bullet_x, bullet_y))
 
-        # Establece el cooldown segun el nivel
+        # Set the cooldown based on the level
         self.shoot_cooldown_timer = level_data["cooldown"]
 
     def handle_events(self):
@@ -728,10 +728,10 @@ class Game:
     def check_level_advance(self):
         """Check if the player has met the conditions to advance to the next level.
 
-        Se necesitan DOS condiciones para avanzar:
-        1. Tener suficiente puntaje acumulado en este nivel.
-        2. Haber sobrevivido mas de 60 segundos en este nivel.
-        El nivel 5 es el ultimo nivel, no tiene avance.
+        TWO conditions are needed to advance:
+        1. Having enough accumulated score in this level.
+        2. Having survived more than 60 seconds in this level.
+        Level 5 is the final level, there is no advancement.
         """
         if self.current_level >= MAX_LEVEL:
             return
@@ -747,11 +747,11 @@ class Game:
             self.level_timer = 0
             self.shoot_cooldown_timer = 0
 
-            # Limpia enemigos y proyectiles al cambiar de nivel
+            # Clear enemies and projectiles when changing level
             self.enemy_ships.clear()
             self.enemy_bullets.clear()
 
-            # Muestra la notificacion del nuevo nivel
+            # Show the notification for the new level
             new_level_data = LEVELS[self.current_level]
             self.level_notification = LevelNotification(new_level_data["name"])
 
@@ -804,7 +804,7 @@ class Game:
         # Update enemy ships
         for ship in self.enemy_ships:
             ship.update()
-            # Las naves enemigas disparan proyectiles cada cierto tiempo
+            # Enemy ships fire projectiles every so often
             if ship.should_shoot():
                 self.enemy_bullets.append(
                     EnemyBullet(ship.x, ship.y + ship.size // 2)
@@ -908,7 +908,7 @@ class Game:
     def draw_background(self):
         """Draw the background image for the current level."""
         self.screen.blit(self.backgrounds[self.current_level], (0, 0))
-        # Se dibuja la imagen de fondo completa, empezando en la esquina (0, 0).
+        # Draws the full background image starting at the top-left corner (0, 0).
 
     def draw_hud(self):
         """Draw heads-up display (score, lives, level, ammo type)."""
@@ -937,18 +937,18 @@ class Game:
         # Ammo type indicator
         ammo_names = {
             "normal": "Normal",
-            "double": "Doble",
-            "spread": "Abanico",
-            "rapid": "Rapido",
+            "double": "Double",
+            "spread": "Spread",
+            "rapid": "Rapid",
         }
         ammo_label = ammo_names.get(level_data["ammo_type"], level_data["ammo_type"])
-        ammo_text = self.font_small.render(f"Arma: {ammo_label}", True, PURPLE)
+        ammo_text = self.font_small.render(f"Weapon: {ammo_label}", True, PURPLE)
         self.screen.blit(ammo_text, (10, 60))
 
         # Time survived in current level
         seconds_in_level = self.level_timer // FPS
         time_text = self.font_small.render(
-            f"Tiempo: {seconds_in_level}s", True, GRAY
+            f"Time: {seconds_in_level}s", True, GRAY
         )
         self.screen.blit(time_text, (WINDOW_WIDTH - time_text.get_width() - 10, 60))
 
@@ -959,24 +959,24 @@ class Game:
             bar_height = 12
             bar_x = (WINDOW_WIDTH - bar_width) // 2
 
-            # Dibuja el fondo de la barra de progreso
+            # Draw the progress bar background
             pygame.draw.rect(self.screen, GRAY, (bar_x, bar_y, bar_width, bar_height))
 
-            # Calcula el progreso basado en score y tiempo
+            # Calculate progress based on score and time
             score_progress = min(
                 1.0, self.level_score / max(1, level_data["score_to_advance"])
             )
             time_progress = min(1.0, seconds_in_level / 60.0)
             progress = min(score_progress, time_progress)
 
-            # Dibuja el relleno de la barra (verde cuando esta listo para avanzar)
+            # Draw the bar fill (green when ready to advance)
             fill_width = int(bar_width * progress)
             bar_color = GREEN if progress >= 1.0 else YELLOW
             pygame.draw.rect(
                 self.screen, bar_color, (bar_x, bar_y, fill_width, bar_height)
             )
 
-            # Borde de la barra
+            # Bar border
             pygame.draw.rect(
                 self.screen, WHITE, (bar_x, bar_y, bar_width, bar_height), 1
             )
@@ -1032,12 +1032,12 @@ class Game:
         self.frame_count = 0
         self.game_over = False
 
-        # Reiniciar el sistema de niveles
+        # Reset the level system
         self.current_level = 1
         self.level_score = 0
         self.level_timer = 0
 
-        # Spawn de meteoritos iniciales para el nivel 1
+        # Spawn initial meteors for level 1
         level_data = LEVELS[self.current_level]
         speed_range = (level_data["meteor_min_speed"], level_data["meteor_max_speed"])
         for _ in range(INITIAL_METEORS):
