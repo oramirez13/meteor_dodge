@@ -108,6 +108,7 @@ meteor_dodge/
 ├── screenshots/             # Example screenshots
 │   ├── meteor_dodge_01.png
 │   └── meteor_dodge_02.png
+├── DOCUMENTACION.md         # Detailed code documentation
 ├── requirements.txt         # Dependencies
 ├── .gitignore               # Excludes cache and venv
 └── README.md                # This file
