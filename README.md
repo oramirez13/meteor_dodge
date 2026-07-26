@@ -87,6 +87,11 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 5. Survive the Warzone (level 5) against enemy ships
 6. Game ends when all 3 lives are lost
 
+## Screenshots
+
+![Shooting at meteors](screenshots/meteor_dodge_01.png)
+![Game over screen](screenshots/meteor_dodge_02.png)
+
 ## Project Structure
 
 ```
