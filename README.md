@@ -66,10 +66,8 @@ deactivate
 
 ## Screenshots
 
-![Gameplay](screenshots/meteor_dodge_01.png)
-![Gameplay 2](screenshots/meteor_dodge_02.png)
-![Gameplay 3](screenshots/meteor_dodge_03.png)
-![Gameplay 4](screenshots/meteor_dodge_04.png)
+![Shooting at meteors](screenshots/meteor_dodge_01.png)
+![Game over screen](screenshots/meteor_dodge_02.png)
 
 ## Project Structure
 
@@ -82,9 +80,7 @@ meteor_dodge/
 │   └── meteor.png
 ├── screenshots/          # Example screenshots
 │   ├── meteor_dodge_01.png
-│   ├── meteor_dodge_02.png
-│   ├── meteor_dodge_03.png
-│   └── meteor_dodge_04.png
+│   └── meteor_dodge_02.png
 ├── requirements.txt      # Dependencies
 ├── .gitignore            # Excludes cache and venv
 └── README.md             # This file
