@@ -36,13 +36,13 @@ deactivate
 
 ## Controls
 
-| Input              | Action                  |
-| ------------------ | ----------------------- |
-| Arrow keys / WASD  | Move the player ship    |
-| SPACE              | Shoot at meteors        |
-| P                  | Pause / Resume game     |
-| ESC                | Quit game               |
-| SPACE / ENTER      | Restart after game over |
+| Input             | Action                  |
+| ----------------- | ----------------------- |
+| Arrow keys / WASD | Move the player ship    |
+| SPACE             | Shoot at meteors        |
+| P                 | Pause / Resume game     |
+| ESC               | Quit game               |
+| SPACE / ENTER     | Restart after game over |
 
 ## Level System
 
@@ -51,13 +51,13 @@ The game has **5 levels**. To advance to the next level you must meet **two cond
 1. Reach the required score for the current level
 2. Survive for at least 60 seconds in the current level
 
-| Level | Name     | Meteor Speed | Ammo Type      | Score to Advance |
-| ----- | -------- | ------------ | -------------- | ---------------- |
-| 1     | Nebula   | 3 - 5        | Normal (1 bullet) | 50            |
-| 2     | Storm    | 4 - 7        | Double (2 bullets) | 150           |
-| 3     | Belt     | 5 - 9        | Spread (3 bullets) | 300           |
-| 4     | Supernova| 6 - 11       | Rapid (fast cooldown) | 500        |
-| 5     | Warzone  | 4 - 8        | Spread (3 bullets) | Endless      |
+| Level | Name      | Meteor Speed | Ammo Type             | Score to Advance |
+| ----- | --------- | ------------ | --------------------- | ---------------- |
+| 1     | Nebula    | 3 - 5        | Normal (1 bullet)     | 50               |
+| 2     | Storm     | 4 - 7        | Double (2 bullets)    | 150              |
+| 3     | Belt      | 5 - 9        | Spread (3 bullets)    | 300              |
+| 4     | Supernova | 6 - 11       | Rapid (fast cooldown) | 500              |
+| 5     | Warzone   | 4 - 8        | Spread (3 bullets)    | Endless          |
 
 Each level has its own background image. Level 5 introduces **enemy ships** that move, dodge, and shoot back at you.
 
@@ -91,7 +91,7 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 
 ## Packaging with PyInstaller
 
-You can distribute the game as a standalone executable so your friends can play it without installing Python or pygame.
+The game can be distribute as a standalone executable so the user can play it without installing Python or pygame.
 
 ```bash
 # Install PyInstaller inside the virtual environment
