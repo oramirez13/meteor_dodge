@@ -316,7 +316,9 @@ class Meteor:
         self.rotation_speed = random.uniform(-5, 5)
         self.trail = []
 
-        # Picks a random image from the list and scales it to this meteor's size
+        # random.choice(meteor_images) selecciona un elemento al azar de la lista.
+        # Esto permite que cada meteorito use una imagen distinta sin tener
+        # que crear una clase separada para cada variante grafica.
         chosen_image = random.choice(meteor_images)
         self.image = pygame.transform.scale(chosen_image, (self.size, self.size))
 
@@ -810,6 +812,9 @@ class Game:
         # Update bullets
         for bullet in self.bullets:
             bullet.update()
+        # La comprension de listas [b for b in self.bullets if not b.is_off_screen()]
+        # crea una NUEVA lista con solo las balas que aun estan en pantalla.
+        # Es equivalente a un bucle for con append, pero en una sola linea.
         self.bullets = [b for b in self.bullets if not b.is_off_screen()]
 
         # Update enemy ships
@@ -832,9 +837,16 @@ class Game:
             meteor.update()
 
         # Remove off-screen meteors
+        # Misma tecnica de comprension de listas: filtra los meteoros que
+        # salieron de la pantalla y conserva solo los que siguen visibles.
         self.meteors = [m for m in self.meteors if not m.is_off_screen()]
 
         # Check bullet vs meteor collisions
+        # Se usa self.bullets[:] (copia de la lista con slicing) en lugar de
+        # self.bullets directamente porque vamos a eliminar elementos con
+        # .remove() dentro del bucle. Si iteraramos sobre la lista original,
+        # al eliminar un elemento se desplazarian los indices y saltariamos
+        # la siguiente bala, causando bugs. La copia [:] evita este problema.
         for bullet in self.bullets[:]:
             bullet_rect = bullet.get_rect()
             for meteor in self.meteors[:]:

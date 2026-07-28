@@ -168,7 +168,7 @@ meteor_dodge/
 ├── screenshots/             # Example screenshots
 │   ├── meteor_dodge_01.png
 │   └── meteor_dodge_02.png
-├── DOCUMENTACION.md         # Detailed code documentation
+├── DOCUMENTATION.md         # Documentacion detallada del codigo
 ├── requirements.txt         # Dependencies
 ├── MeteorDodge.spec         # PyInstaller spec file (generated)
 ├── build/                   # PyInstaller build cache (can be deleted)
