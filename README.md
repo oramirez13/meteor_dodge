@@ -150,6 +150,7 @@ REM The executable is at: dist\MeteorDodge.exe
 
 ![Shooting at meteors](screenshots/meteor_dodge_01.png)
 ![Game over screen](screenshots/meteor_dodge_02.png)
+![Pause button overlay](screenshots/meteor_dodge_03.png)
 
 ## Project Structure
 
