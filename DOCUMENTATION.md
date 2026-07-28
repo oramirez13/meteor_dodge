@@ -347,6 +347,25 @@ if __name__ == "__main__":
 
 ---
 
+## 16. Online Scoreboard (Laravel)
+
+The game can submit scores to a Laravel web server that stores them in a MySQL database.
+
+### In the game (meteor_dodge.py)
+
+The `send_score_to_server()` method is called automatically inside `restart()`. It gathers the final score, level reached, and time survived, then sends a POST request (JSON) to `http://localhost:8000/scores`.
+
+The HTTP request uses `urllib.request` from Python's standard library. If the server is offline, the exception is silently ignored so the game continues to work without internet.
+
+### In the server (meteor_dodge_site)
+
+The Laravel app exposes:
+- `GET /` - Home with top scores and download link
+- `POST /scores` - Accepts and validates a score JSON payload
+- `GET /leaderboard` - Shows the full leaderboard
+
+The `ScoreController::store()` method validates input (player_name: alphanumeric + spaces/hyphens/underscores, score: 0-999999) and returns `{"message":"Score saved successfully","id":<id>}` with HTTP 201 on success.
+
 ## Complete Game Flow
 
 1. You run `python meteor_dodge.py`

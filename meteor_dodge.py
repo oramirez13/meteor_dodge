@@ -16,6 +16,9 @@ import random
 import sys
 import math
 import os
+import urllib.request
+import urllib.parse
+import json
 
 # ============================================================
 # CONSTANTS
@@ -55,6 +58,9 @@ BULLET_SPEED = 12
 # Images folder
 ASSETS_FOLDER = "assets/images"
 SHIP_IMAGE_FILE = "player.png"
+
+# Laravel API endpoint for submitting scores
+LARAVEL_URL = "http://localhost:8000/scores"
 
 # ============================================================
 # LEVEL SYSTEM
@@ -1054,8 +1060,30 @@ class Game:
         )
         self.screen.blit(restart_text, restart_rect)
 
+    def send_score_to_server(self):
+        """Send the final score to the Laravel server via POST."""
+        if self.score <= 0:
+            return
+        data = {
+            "player_name": "Player",
+            "score": self.score,
+            "level_reached": self.current_level,
+            "time_survived": self.level_timer // 60,
+        }
+        json_data = json.dumps(data).encode("utf-8")
+        req = urllib.request.Request(
+            LARAVEL_URL,
+            data=json_data,
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            urllib.request.urlopen(req, timeout=3)
+        except Exception:
+            pass
+
     def restart(self):
         """Restart the game from level 1."""
+        self.send_score_to_server()
         self.player = Player(self.ship_image)
         self.meteors = []
         self.bullets = []
