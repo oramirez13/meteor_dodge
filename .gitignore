@@ -3,3 +3,8 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+
+# PyInstaller
+build/
+dist/
+*.spec
