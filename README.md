@@ -174,7 +174,7 @@ The site will be available at `http://localhost:8000`.
 | ------ | -------------- | ------------------------------ |
 | GET    | `/`            | Home page with top scores      |
 | POST   | `/scores`      | Submit a new score (JSON body) |
-| GET    | `/leaderboard` | Full leaderboard               |
+| GET    | `/leaderboard` | Full leaderboard
 
 ### Submit a score from the game
 
@@ -182,14 +182,12 @@ The game already sends your score automatically when it ends. The JSON payload l
 
 ```json
 {
-  "player_name": "Player",
-  "score": 1500,
-  "level_reached": 3,
-  "time_survived": 120
+    "player_name": "Player",
+    "score": 1500,
+    "level_reached": 3,
+    "time_survived": 120
 }
 ```
-
-You can also use the standalone executable from the site's `public/downloads/` folder.
 
 ## Screenshots
 
