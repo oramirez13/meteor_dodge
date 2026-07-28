@@ -40,6 +40,7 @@ deactivate
 | ------------------ | ----------------------- |
 | Arrow keys / WASD  | Move the player ship    |
 | SPACE              | Shoot at meteors        |
+| P                  | Pause / Resume game     |
 | ESC                | Quit game               |
 | SPACE / ENTER      | Restart after game over |
 
@@ -76,6 +77,7 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 - Score tracking with high score
 - Lives system (3 lives)
 - Invincibility frames after being hit
+- Pause/Resume with P key
 - Particle explosion effects
 
 ## How It Works
@@ -86,6 +88,27 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 4. When both conditions are met, advance to the next level with a new background and weapon
 5. Survive the Warzone (level 5) against enemy ships
 6. Game ends when all 3 lives are lost
+
+## Packaging with PyInstaller
+
+You can distribute the game as a standalone executable so your friends can play it without installing Python or pygame.
+
+```bash
+# Install PyInstaller inside the virtual environment
+source .venv/bin/activate
+pip install pyinstaller
+
+# Build the executable (single file)
+pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets:assets" meteor_dodge.py
+
+# The executable is at: dist/MeteorDodge (73 MB on Linux)
+```
+
+### How to share
+
+1. Zip the `dist/MeteorDodge` file
+2. Send it to your friends
+3. They just unzip and double-click to run (no Python needed)
 
 ## Screenshots
 
@@ -110,6 +133,10 @@ meteor_dodge/
 │   └── meteor_dodge_02.png
 ├── DOCUMENTACION.md         # Detailed code documentation
 ├── requirements.txt         # Dependencies
+├── MeteorDodge.spec         # PyInstaller spec file (generated)
+├── build/                   # PyInstaller build cache (can be deleted)
+├── dist/                    # Standalone executable output
+│   └── MeteorDodge          # The compiled game (73 MB)
 ├── .gitignore               # Excludes cache and venv
 └── README.md                # This file
 ```

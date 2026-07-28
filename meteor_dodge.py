@@ -630,6 +630,9 @@ class Game:
         # It is used to verify the player survives more than 60 seconds.
         self.shoot_cooldown_timer = 0
 
+        # Control de pausa
+        self.paused = False
+
         # Spawn initial meteors
         level_data = LEVELS[self.current_level]
         speed_range = (level_data["meteor_min_speed"], level_data["meteor_max_speed"])
@@ -722,6 +725,11 @@ class Game:
                         self.restart()
                     return
 
+                if event.key == pygame.K_p:
+                    if not self.game_over:
+                        self.paused = not self.paused
+                    return
+
                 if event.key == pygame.K_SPACE:
                     self.shoot()
 
@@ -762,6 +770,9 @@ class Game:
             for exp in self.explosions:
                 exp.update()
             self.explosions = [e for e in self.explosions if e.is_alive()]
+            return
+
+        if self.paused:
             return
 
         self.frame_count += 1
@@ -980,6 +991,19 @@ class Game:
             pygame.draw.rect(
                 self.screen, WHITE, (bar_x, bar_y, bar_width, bar_height), 1
             )
+
+        # Indicador de pausa
+        if self.paused:
+            overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+            overlay.fill(BLACK)
+            overlay.set_alpha(120)
+            self.screen.blit(overlay, (0, 0))
+            pause_text = self.font_large.render("PAUSED", True, YELLOW)
+            pause_rect = pause_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+            self.screen.blit(pause_text, pause_rect)
+            tip_text = self.font_small.render("Press P to continue", True, WHITE)
+            tip_rect = tip_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 40))
+            self.screen.blit(tip_text, tip_rect)
 
     def draw_game_over(self):
         """Draw game over screen overlay."""

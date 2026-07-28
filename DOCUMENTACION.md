@@ -255,6 +255,7 @@ Processes pygame events:
 - `QUIT`: Closes the window
 - `ESCAPE`: Closes the game
 - `SPACE` on game over: Restarts
+- `P`: Toggles pause (only when not game over)
 - `SPACE` while playing: Shoots
 
 ### `check_level_advance` (line 728) - Level Advancement
@@ -270,6 +271,8 @@ If both are met:
 4. Shows the notification for the new level
 
 ### `update` (line 758) - Game State Update
+
+If the game is paused (`self.paused == True`), it returns immediately without updating anything. This freezes all objects in place.
 
 This is the heart of the game. Every frame it:
 
@@ -303,6 +306,7 @@ Draws game information on screen:
 - **Weapon + type** (left, purple)
 - **Time** in the current level (right, gray)
 - **Progress bar** (bottom-center): Shows how close the player is to advancing to the next level. Changes from yellow to green when ready
+- **Pause overlay** (when paused): Darkens the screen with a semi-transparent black layer and displays "PAUSED" in yellow with "Press P to continue" hint
 
 ### `run` (line 1046) - Main Game Loop
 
@@ -355,3 +359,72 @@ if __name__ == "__main__":
 8. Progressively until **Level 5 (Warzone)** where enemy ships appear
 9. If you lose all 3 lives, "GAME OVER" appears with your score
 10. Press SPACE to restart from Level 1
+
+---
+
+## 14. Pause System
+
+Added to allow players to temporarily stop the game without losing progress.
+
+### Implementation (4 modifications to the Game class)
+
+**1. `__init__` - New variable:**
+```python
+self.paused = False
+```
+A boolean flag that tracks whether the game is paused. Starts as `False` (not paused).
+
+**2. `handle_events` - New key press:**
+```python
+if event.key == pygame.K_p:
+    if not self.game_over:
+        self.paused = not self.paused
+    return
+```
+When the player presses P and the game is not over, it flips the `paused` flag. The `return` prevents any other action from triggering on the same key press.
+
+**3. `update` - Early return when paused:**
+```python
+if self.paused:
+    return
+```
+If paused, the entire game logic (movement, collisions, spawning, scoring) is skipped. Objects freeze in place.
+
+**4. `draw_hud` - Visual overlay:**
+- Creates a semi-transparent black surface covering the whole screen
+- Draws "PAUSED" in yellow centered on screen
+- Draws "Press P to continue" in white below it
+- The overlay is drawn AFTER all game objects but BEFORE game over screen (so the game behind is visible but dimmed)
+
+---
+
+## 15. Packaging with PyInstaller
+
+PyInstaller bundles the Python interpreter, pygame, and all game assets into a single executable file. This lets users run the game without installing any dependencies.
+
+### Build command
+```bash
+pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets:assets" meteor_dodge.py
+```
+
+### Flag explanation
+| Flag | Purpose |
+|---|---|
+| `--onefile` | Creates a single executable file (vs a folder with many files) |
+| `--windowed` | Prevents a terminal/console window from opening when the game launches |
+| `--name "MeteorDodge"` | Name of the output executable |
+| `--add-data "assets:assets"` | Bundles the assets/images folder inside the executable so images are available at runtime |
+
+### How it works
+1. PyInstaller analyzes `meteor_dodge.py` to find all imported modules (pygame, random, sys, math, os)
+2. Copies those modules and the Python interpreter into a package
+3. Compresses everything and appends it to a bootloader executable
+4. When run, the bootloader extracts the modules to a temporary directory and launches the game
+
+### Output
+```
+dist/
+  MeteorDodge          # ~73 MB standalone executable (Linux)
+build/                 # Temporary build files (safe to delete)
+MeteorDodge.spec       # Build configuration (can be reused with: pyinstaller MeteorDodge.spec)
+```
