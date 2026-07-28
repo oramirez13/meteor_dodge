@@ -360,7 +360,7 @@ The HTTP request uses `urllib.request` from Python's standard library. If the se
 ### In the server (meteor_dodge_site)
 
 The Laravel app exposes:
-- `GET /` - Home with top scores and download link
+- `GET /` - Home page with top scores
 - `POST /scores` - Accepts and validates a score JSON payload
 - `GET /leaderboard` - Shows the full leaderboard
 
