@@ -2,6 +2,8 @@
 
 A survival game where you dodge and shoot falling meteors across 5 unique levels. Built with pygame.
 
+New to the game? Check out **[STEP-BYSTEP.md](STEP-BYSTEP.md)** for a quick setup guide.
+
 ## Requirements
 
 - Python 3.7+
@@ -175,6 +177,7 @@ meteor_dodge/
 ├── build/                   # PyInstaller build cache (can be deleted)
 ├── dist/                    # Standalone executable output
 │   └── MeteorDodge          # The compiled game (73 MB)
+├── STEP-BYSTEP.md           # Step by step guide to install and play
 ├── .gitignore               # Excludes cache and venv
 └── README.md                # This file
 ```
