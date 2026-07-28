@@ -9,9 +9,11 @@ A survival game where you dodge and shoot falling meteors across 5 unique levels
 
 ## Installation
 
+### Linux / macOS
+
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/oramirez13/meteor_dodge.git
 cd meteor_dodge
 
 # Create and activate a virtual environment
@@ -22,9 +24,29 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Windows 10 / 11 (PowerShell or CMD)
+
+```cmd
+REM 1. Install Python from https://www.python.org/downloads/
+REM    (check "Add Python to PATH" during installation)
+
+REM 2. Open CMD or PowerShell and run:
+git clone https://github.com/oramirez13/meteor_dodge.git
+cd meteor_dodge
+pip install -r requirements.txt
+```
+
 ## Usage
 
+### Linux / macOS
+
 ```bash
+python meteor_dodge.py
+```
+
+### Windows
+
+```cmd
 python meteor_dodge.py
 ```
 
@@ -91,7 +113,9 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 
 ## Packaging with PyInstaller
 
-The game can be distribute as a standalone executable so the user can play it without installing Python or pygame.
+The game can be distributed as a standalone executable so the user can play it without installing Python or pygame.
+
+### Linux / macOS
 
 ```bash
 # Install PyInstaller inside the virtual environment
@@ -104,11 +128,23 @@ pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets:assets"
 # The executable is at: dist/MeteorDodge (73 MB on Linux)
 ```
 
+### Windows (PowerShell or CMD)
+
+```cmd
+REM Install PyInstaller
+pip install pyinstaller
+
+REM Build the executable (note: Windows uses ; instead of :)
+pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets;assets" meteor_dodge.py
+
+REM The executable is at: dist\MeteorDodge.exe
+```
+
 ### How to share
 
-1. Zip the `dist/MeteorDodge` file
+1. Zip the executable from `dist/`
 2. Send it to your friends
-3. They just unzip and double-click to run (no Python needed)
+3. They just unzip and double-click to run (no Python or pygame needed)
 
 ## Screenshots
 
