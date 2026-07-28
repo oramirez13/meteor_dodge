@@ -2,8 +2,6 @@
 
 A survival game where you dodge and shoot falling meteors across 5 unique levels. Built with pygame.
 
-New to the game? Check out **[STEP-BYSTEP.md](STEP-BYSTEP.md)** for a quick setup guide.
-
 ## Requirements
 
 - Python 3.7+
@@ -148,6 +146,51 @@ REM The executable is at: dist\MeteorDodge.exe
 2. Send it to your friends
 3. They just unzip and double-click to run (no Python or pygame needed)
 
+## Online Scoreboard (Laravel Site)
+
+The game can submit scores to an online leaderboard. The site is built with **Laravel** and connects to a **MySQL** database.
+
+### Requirements
+
+- PHP 8.4+
+- Composer
+- MySQL / MariaDB
+
+### Setup
+
+```bash
+cd /opt/lampp/htdocs/meteor_dodge_site
+cp .env.example .env
+# Edit .env: set DB_DATABASE, DB_USERNAME, DB_PASSWORD
+php artisan migrate
+php artisan serve
+```
+
+The site will be available at `http://localhost:8000`.
+
+### API Endpoints
+
+| Method | URL            | Description                    |
+| ------ | -------------- | ------------------------------ |
+| GET    | `/`            | Home page with top scores      |
+| POST   | `/scores`      | Submit a new score (JSON body) |
+| GET    | `/leaderboard` | Full leaderboard               |
+
+### Submit a score from the game
+
+The game already sends your score automatically when it ends. The JSON payload looks like:
+
+```json
+{
+  "player_name": "Player",
+  "score": 1500,
+  "level_reached": 3,
+  "time_survived": 120
+}
+```
+
+You can also use the standalone executable from the site's `public/downloads/` folder.
+
 ## Screenshots
 
 ![Shooting at meteors](screenshots/meteor_dodge_01.png)
@@ -180,4 +223,12 @@ meteor_dodge/
 ├── STEP-BYSTEP.md           # Step by step guide to install and play
 ├── .gitignore               # Excludes cache and venv
 └── README.md                # This file
+
+meteor_dodge_site/           # Laravel web application
+├── app/Http/Controllers/    # ScoreController (store, index, leaderboard)
+├── app/Models/              # Score model
+├── database/migrations/     # scores table migration
+├── resources/views/         # Blade templates (home, leaderboard)
+├── routes/web.php           # Route definitions
+└── .env                     # Database configuration
 ```

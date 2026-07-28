@@ -95,6 +95,32 @@ The executable will be in the `dist/` folder:
 
 ---
 
+## Online Scoreboard (Laravel Site)
+
+The game can submit scores to an online leaderboard. You need to set up the Laravel site separately.
+
+### Prerequisites
+
+- PHP 8.4+
+- Composer
+- MySQL / MariaDB
+
+### Setup
+
+```bash
+git clone https://github.com/oramirez13/meteor_dodge.git
+cd meteor_dodge_site
+cp .env.example .env
+# Edit .env: set DB_DATABASE, DB_USERNAME, DB_PASSWORD
+composer install
+php artisan migrate
+php artisan serve
+```
+
+The site will be available at `http://localhost:8000`. When you play the game, scores are automatically submitted to the server.
+
+---
+
 ## Troubleshooting
 
 | Problem | Solution |
