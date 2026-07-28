@@ -403,8 +403,15 @@ If paused, the entire game logic (movement, collisions, spawning, scoring) is sk
 PyInstaller bundles the Python interpreter, pygame, and all game assets into a single executable file. This lets users run the game without installing any dependencies.
 
 ### Build command
+
+**Linux / macOS:**
 ```bash
 pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets:assets" meteor_dodge.py
+```
+
+**Windows (PowerShell or CMD):**
+```cmd
+pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets;assets" meteor_dodge.py
 ```
 
 ### Flag explanation
@@ -413,7 +420,7 @@ pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets:assets"
 | `--onefile` | Creates a single executable file (vs a folder with many files) |
 | `--windowed` | Prevents a terminal/console window from opening when the game launches |
 | `--name "MeteorDodge"` | Name of the output executable |
-| `--add-data "assets:assets"` | Bundles the assets/images folder inside the executable so images are available at runtime |
+| `--add-data "assets:assets"` | Bundles the assets/images folder inside the executable so images are available at runtime (Linux/macOS). On Windows use `;` as separator: `"assets;assets"` |
 
 ### How it works
 1. PyInstaller analyzes `meteor_dodge.py` to find all imported modules (pygame, random, sys, math, os)
@@ -425,6 +432,9 @@ pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets:assets"
 ```
 dist/
   MeteorDodge          # ~73 MB standalone executable (Linux)
+  MeteorDodge.exe      # ~73 MB standalone executable (Windows)
 build/                 # Temporary build files (safe to delete)
 MeteorDodge.spec       # Build configuration (can be reused with: pyinstaller MeteorDodge.spec)
 ```
+
+**Note:** The executable is platform-specific. You must build it on the same OS where it will run. A Linux build will not run on Windows and vice versa.
