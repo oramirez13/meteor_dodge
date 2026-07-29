@@ -1,4 +1,4 @@
-# Meteor Dodge Documentation - Step by Step Explanation
+# Meteor Dodge Documentation
 
 The project is a survival game built with **pygame** (a library for creating games in Python). The player controls a ship that must dodge and destroy meteors falling from the sky. It has 5 levels, each with different difficulty, visual background, and weapon type.
 
@@ -34,17 +34,17 @@ These are fixed values that do not change during the game. They are in uppercase
 
 This is a **dictionary** where each key (1, 2, 3, 4, 5) is a level. Each level has:
 
-| Field | What it means |
-|---|---|
-| `name` | Name displayed on screen |
-| `background` | Background image file for that level |
-| `meteor_min_speed` / `meteor_max_speed` | Speed range for meteors |
-| `spawn_rate` | How many frames between meteor spawns (lower = more frequent) |
-| `ammo_type` | Ammo type: normal, double, spread, rapid |
-| `cooldown` | Frames of wait between each shot |
-| `score_to_advance` | Score needed to advance to the next level |
-| `has_enemy_ships` | Whether enemy ships appear (level 5 only) |
-| `ship_spawn_rate` | How many frames between enemy ship spawns (level 5) |
+| Field                                   | What it means                                                 |
+| --------------------------------------- | ------------------------------------------------------------- |
+| `name`                                  | Name displayed on screen                                      |
+| `background`                            | Background image file for that level                          |
+| `meteor_min_speed` / `meteor_max_speed` | Speed range for meteors                                       |
+| `spawn_rate`                            | How many frames between meteor spawns (lower = more frequent) |
+| `ammo_type`                             | Ammo type: normal, double, spread, rapid                      |
+| `cooldown`                              | Frames of wait between each shot                              |
+| `score_to_advance`                      | Score needed to advance to the next level                     |
+| `has_enemy_ships`                       | Whether enemy ships appear (level 5 only)                     |
+| `ship_spawn_rate`                       | How many frames between enemy ship spawns (level 5)           |
 
 The difficulty progression:
 
@@ -61,11 +61,13 @@ The difficulty progression:
 Loads an image from disk and prepares it for use in the game.
 
 **Parameters:**
+
 - `filename`: File name (e.g., "player.png")
 - `size`: Optional tuple to resize (e.g., (40, 40))
 - `has_alpha`: `True` if it has transparency (PNG), `False` if not (background JPGs)
 
 **What it does step by step:**
+
 1. `os.path.join` builds the full path: `"assets/images/player.png"`
 2. `pygame.image.load` reads the file from disk
 3. If it fails, prints a clear error message and closes the game
@@ -85,6 +87,7 @@ Starts at the center-bottom of the screen (x=400, y=520). Has 3 lives, not invin
 ### `update` (line 190)
 
 Every frame:
+
 1. Saves the current position to `trail` (keeps a maximum of 10 positions)
 2. Reads the pressed keys and moves the ship 8px in that direction
 3. Limits the position so it does not leave the screen (lines 208-209)
@@ -93,6 +96,7 @@ Every frame:
 ### `hit` (line 217)
 
 When a meteor hits the ship:
+
 1. If already invincible, does nothing (returns False)
 2. Otherwise, loses 1 life, becomes invincible for 90 frames (1.5 seconds)
 3. Returns True so the game knows a life was lost
@@ -100,6 +104,7 @@ When a meteor hits the ship:
 ### `draw` (line 232)
 
 Draws:
+
 1. The trail: Blue rectangles that grow from small to large, following the last positions
 2. The ship: Draws the image centered at (x, y). Blinks when invincible (appears and disappears alternately)
 
@@ -147,6 +152,7 @@ Moves the meteor downward by adding `self.speed` to Y. Updates rotation. Saves p
 ### `draw` (line 342)
 
 Draws:
+
 1. Trail of gray rectangles
 2. The meteor image rotated with `pygame.transform.rotate`. After rotating, it is recentered because the bounding rectangle changes size
 
@@ -159,6 +165,7 @@ Enemy ship that appears only in level 5.
 ### `__init__` (line 369)
 
 Similar to the player but:
+
 - Appears at the top of the screen (y = -size)
 - Moves downward at speed 2-4
 - Picks a random horizontal direction (-1 or +1, left or right)
@@ -181,6 +188,7 @@ Draws the player's image **flipped vertically** with `pygame.transform.flip(imag
 ## 9. `EnemyBullet` Class (lines 435-464)
 
 Projectile fired by enemy ships. Same as `Bullet` but:
+
 - Moves **downward** (`self.speed = 6`, no negative vy)
 - Is red in color (vs yellow for the player)
 
@@ -193,6 +201,7 @@ Visual effect when something explodes.
 ### `__init__` (line 475)
 
 Creates 15 particles. Each particle has:
+
 - Initial position (x, y) of the destroyed object
 - Random velocity in any angle (`vx`, `vy` calculated with `cos` and `sin`)
 - Random size (2-6px)
@@ -252,6 +261,7 @@ After shooting, activates the cooldown based on the level.
 ### `handle_events` (line 708) - User Input
 
 Processes pygame events:
+
 - `QUIT`: Closes the window
 - `ESCAPE`: Closes the game
 - `SPACE` on game over: Restarts
@@ -261,10 +271,12 @@ Processes pygame events:
 ### `check_level_advance` (line 728) - Level Advancement
 
 Checks if the player meets both conditions:
+
 1. `level_score >= score_to_advance` (enough score in this level)
 2. `seconds_in_level >= 60` (survived more than 1 minute)
 
 If both are met:
+
 1. Increments `current_level`
 2. Resets `level_score` and `level_timer` to 0
 3. Clears enemy ships and enemy bullets
@@ -299,6 +311,7 @@ This is the heart of the game. Every frame it:
 ### `draw_hud` (line 913) - Heads-Up Display
 
 Draws game information on screen:
+
 - **Score** (top-left, white)
 - **High Score** (top-right, yellow)
 - **Lives** (left, green)
@@ -360,6 +373,7 @@ The HTTP request uses `urllib.request` from Python's standard library. If the se
 ### In the server (meteor_dodge_site)
 
 The Laravel app exposes:
+
 - `GET /` - Home page with top scores
 - `POST /scores` - Accepts and validates a score JSON payload
 - `GET /leaderboard` - Shows the full leaderboard
@@ -388,28 +402,35 @@ Added to allow players to temporarily stop the game without losing progress.
 ### Implementation (4 modifications to the Game class)
 
 **1. `__init__` - New variable:**
+
 ```python
 self.paused = False
 ```
+
 A boolean flag that tracks whether the game is paused. Starts as `False` (not paused).
 
 **2. `handle_events` - New key press:**
+
 ```python
 if event.key == pygame.K_p:
     if not self.game_over:
         self.paused = not self.paused
     return
 ```
+
 When the player presses P and the game is not over, it flips the `paused` flag. The `return` prevents any other action from triggering on the same key press.
 
 **3. `update` - Early return when paused:**
+
 ```python
 if self.paused:
     return
 ```
+
 If paused, the entire game logic (movement, collisions, spawning, scoring) is skipped. Objects freeze in place.
 
 **4. `draw_hud` - Visual overlay:**
+
 - Creates a semi-transparent black surface covering the whole screen
 - Draws "PAUSED" in yellow centered on screen
 - Draws "Press P to continue" in white below it
@@ -424,30 +445,35 @@ PyInstaller bundles the Python interpreter, pygame, and all game assets into a s
 ### Build command
 
 **Linux / macOS:**
+
 ```bash
 pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets:assets" meteor_dodge.py
 ```
 
 **Windows (PowerShell or CMD):**
+
 ```cmd
 pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets;assets" meteor_dodge.py
 ```
 
 ### Flag explanation
-| Flag | Purpose |
-|---|---|
-| `--onefile` | Creates a single executable file (vs a folder with many files) |
-| `--windowed` | Prevents a terminal/console window from opening when the game launches |
-| `--name "MeteorDodge"` | Name of the output executable |
+
+| Flag                         | Purpose                                                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--onefile`                  | Creates a single executable file (vs a folder with many files)                                                                                              |
+| `--windowed`                 | Prevents a terminal/console window from opening when the game launches                                                                                      |
+| `--name "MeteorDodge"`       | Name of the output executable                                                                                                                               |
 | `--add-data "assets:assets"` | Bundles the assets/images folder inside the executable so images are available at runtime (Linux/macOS). On Windows use `;` as separator: `"assets;assets"` |
 
 ### How it works
+
 1. PyInstaller analyzes `meteor_dodge.py` to find all imported modules (pygame, random, sys, math, os)
 2. Copies those modules and the Python interpreter into a package
 3. Compresses everything and appends it to a bootloader executable
 4. When run, the bootloader extracts the modules to a temporary directory and launches the game
 
 ### Output
+
 ```
 dist/
   MeteorDodge          # ~73 MB standalone executable (Linux)

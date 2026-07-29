@@ -1,6 +1,6 @@
 # Intermediate Concepts Used in Meteor Dodge
 
-This document explains the intermediate-level structures that appear in the code, so you can study them separately and understand what each line does.
+This document explains the intermediate-level structures that appear in the code.
 
 ---
 
@@ -95,7 +95,7 @@ LEVELS = {
 
 ### Advantage
 
-All 5 level configurations are in one place. If you need to change a level's speed, you do it once. Without nested dictionaries you would need 5 separate variables or 5 parallel lists, which are harder to maintain.
+All five level configurations are centralized in a single data structure. This allows a level's speed to be modified in one place. An alternative approach without nested dictionaries would require five separate variables or five parallel lists to represent the same data.
 
 ---
 
@@ -213,11 +213,11 @@ for meteor in self.meteors[:]:
 
 ## Summary
 
-| Concept | Where it is used | What to study |
-|---|---|---|
-| List comprehension | Filtering lists (bullets, meteors) | `[x for x in lista if cond]` structure |
-| Nested dictionaries | `LEVELS`, `self.backgrounds` | Access with `dict[key][subkey]` |
-| Slicing `[:]` | `for x in list[:]` | List copy, difference between `[:]` and `list()` |
-| Optional parameters | `spawn_meteor(speed=None)` | Default values, `is None` check |
-| `__name__ == "__main__"` | Game entry point | Direct execution vs import |
-| `break` | Collision loops | Exiting loops early |
+| Concept                  | Where it is used                   | What to study                                    |
+| ------------------------ | ---------------------------------- | ------------------------------------------------ |
+| List comprehension       | Filtering lists (bullets, meteors) | `[x for x in lista if cond]` structure           |
+| Nested dictionaries      | `LEVELS`, `self.backgrounds`       | Access with `dict[key][subkey]`                  |
+| Slicing `[:]`            | `for x in list[:]`                 | List copy, difference between `[:]` and `list()` |
+| Optional parameters      | `spawn_meteor(speed=None)`         | Default values, `is None` check                  |
+| `__name__ == "__main__"` | Game entry point                   | Direct execution vs import                       |
+| `break`                  | Collision loops                    | Exiting loops early                              |

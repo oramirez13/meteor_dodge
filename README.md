@@ -1,6 +1,6 @@
 # Meteor Dodge
 
-A survival game where you dodge and shoot falling meteors across 5 unique levels. Built with pygame.
+A survival game built with **pygame** (a library for creating games in Python). The player controls a ship that must dodge and destroy meteors falling from the sky. It has 5 levels, each with different difficulty, visual background, and weapon type.
 
 ## Requirements
 
@@ -174,7 +174,7 @@ The site will be available at `http://localhost:8000`.
 | ------ | -------------- | ------------------------------ |
 | GET    | `/`            | Home page with top scores      |
 | POST   | `/scores`      | Submit a new score (JSON body) |
-| GET    | `/leaderboard` | Full leaderboard
+| GET    | `/leaderboard` | Full leaderboard               |
 
 ### Submit a score from the game
 
@@ -182,10 +182,10 @@ The game already sends your score automatically when it ends. The JSON payload l
 
 ```json
 {
-    "player_name": "Player",
-    "score": 1500,
-    "level_reached": 3,
-    "time_survived": 120
+  "player_name": "Player",
+  "score": 1500,
+  "level_reached": 3,
+  "time_survived": 120
 }
 ```
 
