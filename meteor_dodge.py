@@ -60,7 +60,6 @@ BULLET_SPEED = 12
 ASSETS_FOLDER = "assets/images"
 SHIP_IMAGE_FILE = "ship.png"
 ENEMY_SHIP_IMAGE_FILE = "ship1.png"
-METEORS_FOLDER = "assets/images/meteors"
 
 # Laravel API endpoint for submitting scores
 LARAVEL_URL = "http://localhost:8000/scores"
@@ -614,25 +613,8 @@ class Game:
             ENEMY_SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE), has_alpha=True
         )
 
-        # Load all meteor images from the meteors folder
-        self.meteor_images = []
-        try:
-            # List all .png files in the meteors folder
-            meteor_files = sorted(
-                f for f in os.listdir(METEORS_FOLDER) if f.lower().endswith(".png")
-            )
-            for filename in meteor_files:
-                meteor_image = load_image(filename, has_alpha=True, folder=METEORS_FOLDER)
-                self.meteor_images.append(meteor_image)
-            if not self.meteor_images:
-                raise FileNotFoundError("No PNG files found in meteors folder")
-        except (FileNotFoundError, OSError):
-            print(f"Could not load meteor images from {METEORS_FOLDER}")
-            print("Make sure the folder exists and contains PNG files.")
-            pygame.quit()
-            sys.exit()
-        # Use at most 48 meteor images (more than enough variety)
-        self.meteor_images = self.meteor_images[:48]
+        # Load the meteor image
+        self.meteor_images = [load_image("meteor.png", has_alpha=True)]
 
         # Load backgrounds for all levels and store them in a dictionary
         # so they can be swapped when the player advances levels.

@@ -15,6 +15,7 @@ assets/sounds/*.wav
 assets/sounds/*.ogg
 assets/sounds/*.mp3
 assets/images/*.zip
+assets/images/meteors/
 
 # Original downloaded UI sound packs
 assets/sounds/UI Soundpack*.zip
