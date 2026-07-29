@@ -28,7 +28,7 @@ These are fixed values that do not change during the game. They are in uppercase
 - **Meteors**: Minimum 8 at start, maximum 60 on screen
 - **Score**: +1 per second alive, +5 for dodging, +15 for destroying
 - **Bullets**: 4px wide, 12px tall, speed 12px per frame
-- **Assets**: `assets/images/` folder contains subdirectories for images; `assets/images/meteors/` holds 17 meteor sprite variants across 4 visual types (a, b, c, d) and 3 size variants (small/medium/large)
+- **Assets**: `assets/images/` folder contains subdirectories for images; `assets/images/meteors/` holds 4 meteor sprite variants (meteor1.png - meteor4.png)
 
 ---
 
@@ -244,7 +244,7 @@ This is the largest class. It coordinates everything.
 5. **Loads images**:
    - Player ship image (40x40), from `assets/images/spaceships/ship.png`
    - Enemy ship image (same as player, will be flipped when drawn), from `assets/images/spaceships/ship1.png`
-   - **17 meteor images** from `assets/images/meteors/`: 4 visual types (a, b, c, d) at 3 scales each, plus 5 named variants (meteor.png, meteor1-4.png)
+   - **4 meteor images** from `assets/images/meteors/`: meteor1.png through meteor4.png
    - Backgrounds for all 5 levels (stored in `self.backgrounds` dictionary)
 6. **Creates empty lists**: For meteors, bullets, enemy ships, enemy bullets, explosions
 7. **Control variables**: score, high_score, game_over, frame_count, current_level, etc.
