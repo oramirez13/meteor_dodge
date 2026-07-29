@@ -179,3 +179,14 @@ def stop_music(fadeout_ms=1000):
 def stop_music_immediate():
     """Stop the current music instantly (no fade)."""
     pygame.mixer.music.stop()
+
+
+def stop_all_sfx():
+    """Stop all lingering sound effects (game_over, highscore, etc.).
+
+    This is useful when restarting the game so that long sounds
+    from the previous session do not carry over into the new game.
+    """
+    for sfx in [game_over, highscore, level_up]:
+        if sfx is not None:
+            sfx.stop()

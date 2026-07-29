@@ -1141,7 +1141,8 @@ class Game:
         for _ in range(INITIAL_METEORS):
             self.spawn_meteor(speed=random.uniform(1, 3), speed_range=speed_range)
 
-        # Restart music for level 1
+        # Stop any lingering sounds from the previous game and restart music
+        audio.stop_all_sfx()
         audio.stop_music_immediate()
         audio.play_level_music(1)
 
