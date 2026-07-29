@@ -56,9 +56,11 @@ BULLET_WIDTH = 4
 BULLET_HEIGHT = 12
 BULLET_SPEED = 12
 
-# Images folder
+# Images folders
 ASSETS_FOLDER = "assets/images"
-SHIP_IMAGE_FILE = "player.png"
+SHIP_IMAGE_FILE = "ship.png"
+ENEMY_SHIP_IMAGE_FILE = "ship1.png"
+METEORS_FOLDER = "assets/images/meteors"
 
 # Laravel API endpoint for submitting scores
 LARAVEL_URL = "http://localhost:8000/scores"
@@ -138,14 +140,15 @@ MAX_LEVEL = 5
 # ============================================================
 
 
-def load_image(filename, size=None, has_alpha=True):
+def load_image(filename, size=None, has_alpha=True, folder=ASSETS_FOLDER):
     """Load a single image file from the assets folder.
 
     filename: name of the file inside the assets folder.
     size: optional (width, height) tuple to resize the image.
     has_alpha: True if the image has transparency (PNG with transparent background).
+    folder: directory path where the image is located (default ASSETS_FOLDER).
     """
-    path = os.path.join(ASSETS_FOLDER, filename)
+    path = os.path.join(folder, filename)
     # os.path.join builds the full path by joining the folder and filename,
     # respecting the correct separator for the operating system.
     try:
@@ -373,17 +376,26 @@ class Meteor:
 
 class EnemyShip:
     """Enemy ship that appears in level 5. Moves toward the player
-    and shoots projectiles downward."""
+    and shoots projectiles downward.
 
-    def __init__(self, image):
+    fast: if True, the ship moves faster and shoots more often.
+    """
+
+    def __init__(self, image, fast=False):
         self.size = PLAYER_SIZE
         self.x = random.randint(self.size, WINDOW_WIDTH - self.size)
         self.y = -self.size
-        self.speed = random.uniform(2, 4)
+        self.fast = fast
+        if fast:
+            # Fast enemy: higher speed and more agressive shooting
+            self.speed = random.uniform(4, 6)
+            self.shoot_timer = random.randint(20, 50)
+        else:
+            self.speed = random.uniform(2, 4)
+            self.shoot_timer = random.randint(30, 90)
         # Horizontal direction: moves to one side
         self.direction = random.choice([-1, 1])
         self.image = image
-        self.shoot_timer = random.randint(30, 90)
         # Every few frames, the enemy ship fires a projectile.
         self.trail = []
         self.alive = True
@@ -422,12 +434,13 @@ class EnemyShip:
 
     def draw(self, surface):
         """Draw the enemy ship with trail effect."""
-        # Draw trail in red to distinguish from player
+        # Fast enemies use orange trail, normal ones use red
+        trail_color = ORANGE if self.fast else RED
         for i, (tx, ty) in enumerate(self.trail):
             size = int(self.size * (i / len(self.trail)) * 0.5)
             if size > 0:
                 trail_rect = pygame.Rect(tx - size // 2, ty - size // 2, size, size)
-                pygame.draw.rect(surface, RED, trail_rect)
+                pygame.draw.rect(surface, trail_color, trail_rect)
 
         # Draw the enemy ship image (flipped vertically
         # so it points downward toward the player)
@@ -596,16 +609,30 @@ class Game:
             SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE), has_alpha=True
         )
 
-        # Load enemy ship image (uses the same image as the player
-        # but will be flipped when drawn to point downward)
-        self.enemy_ship_image = self.ship_image
+        # Load enemy ship image (will be flipped when drawn to point downward)
+        self.enemy_ship_image = load_image(
+            ENEMY_SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE), has_alpha=True
+        )
 
-        # Load all meteor images once
-        meteor_image_files = ["meteor.png"]
+        # Load all meteor images from the meteors folder
         self.meteor_images = []
-        for filename in meteor_image_files:
-            meteor_image = load_image(filename, has_alpha=True)
-            self.meteor_images.append(meteor_image)
+        try:
+            # List all .png files in the meteors folder
+            meteor_files = sorted(
+                f for f in os.listdir(METEORS_FOLDER) if f.lower().endswith(".png")
+            )
+            for filename in meteor_files:
+                meteor_image = load_image(filename, has_alpha=True, folder=METEORS_FOLDER)
+                self.meteor_images.append(meteor_image)
+            if not self.meteor_images:
+                raise FileNotFoundError("No PNG files found in meteors folder")
+        except (FileNotFoundError, OSError):
+            print(f"Could not load meteor images from {METEORS_FOLDER}")
+            print("Make sure the folder exists and contains PNG files.")
+            pygame.quit()
+            sys.exit()
+        # Use at most 48 meteor images (more than enough variety)
+        self.meteor_images = self.meteor_images[:48]
 
         # Load backgrounds for all levels and store them in a dictionary
         # so they can be swapped when the player advances levels.
@@ -675,9 +702,14 @@ class Game:
             self.meteors.append(meteor)
 
     def spawn_enemy_ship(self):
-        """Spawn an enemy ship at the top of the screen (level 5 only)."""
+        """Spawn an enemy ship at the top of the screen (level 5 only).
+        25% chance of spawning a fast enemy with higher speed and
+        more aggressive shooting."""
         if len(self.enemy_ships) < 5:
-            self.enemy_ships.append(EnemyShip(self.enemy_ship_image))
+            is_fast = random.random() < 0.25
+            self.enemy_ships.append(
+                EnemyShip(self.enemy_ship_image, fast=is_fast)
+            )
 
     def shoot(self):
         """Create bullets at the player's position based on the current ammo type.
