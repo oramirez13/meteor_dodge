@@ -9,13 +9,29 @@ build/
 dist/
 *.spec
 
-# Original downloaded source files (organized copies in the proper locations)
-assets/sounds/*.zip
+# ============================================================
+# Assets: keep ONLY what the game actually uses (organized under
+# assets/sounds/sfx/, assets/sounds/music/, assets/images/).
+# Ignore everything else (raw downloads, zip extractions, etc.)
+# ============================================================
+
+# Ignore all raw source files in the root of assets/sounds/
 assets/sounds/*.wav
 assets/sounds/*.ogg
 assets/sounds/*.mp3
-assets/images/*.zip
-assets/images/meteors/
+assets/sounds/*.zip
+assets/sounds/INFO.txt
 
-# Original downloaded UI sound packs
-assets/sounds/UI Soundpack*.zip
+# Ignore extracted sound packs
+assets/sounds/SpaceShipShooting/
+
+# Ignore all zip files in assets/images/
+assets/images/*.zip
+
+# Ignore extracted/extra image directories (from zip extractions)
+assets/images/SpaceGame/
+assets/images/large/
+assets/images/medium/
+assets/images/small/
+assets/images/meteors/
+assets/images/rotationY*.png
