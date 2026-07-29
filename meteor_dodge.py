@@ -19,6 +19,7 @@ import os
 import urllib.request
 import urllib.parse
 import json
+import audio
 
 # ============================================================
 # CONSTANTS
@@ -580,6 +581,7 @@ class Game:
 
     def __init__(self):
         pygame.init()
+        audio.init()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption(WINDOW_TITLE)
         self.clock = pygame.time.Clock()
@@ -647,6 +649,9 @@ class Game:
         for _ in range(INITIAL_METEORS):
             self.spawn_meteor(speed=random.uniform(1, 3), speed_range=speed_range)
 
+        # Start background music for level 1
+        audio.play_level_music(1)
+
     def get_level_data(self):
         """Get the configuration dictionary for the current level."""
         return LEVELS[self.current_level]
@@ -687,6 +692,9 @@ class Game:
 
         if self.shoot_cooldown_timer > 0:
             return
+
+        if audio.laser:
+            audio.laser.play()
 
         bullet_x = self.player.x
         bullet_y = self.player.y - self.player.size // 2
@@ -730,12 +738,16 @@ class Game:
 
                 if self.game_over:
                     if event.key in (pygame.K_SPACE, pygame.K_RETURN):
+                        if audio.click:
+                            audio.click.play()
                         self.restart()
                     return
 
                 if event.key == pygame.K_p:
                     if not self.game_over:
                         self.paused = not self.paused
+                        if audio.pause_sound:
+                            audio.pause_sound.play()
                     return
 
                 if event.key == pygame.K_SPACE:
@@ -770,6 +782,23 @@ class Game:
             # Show the notification for the new level
             new_level_data = LEVELS[self.current_level]
             self.level_notification = LevelNotification(new_level_data["name"])
+
+            # Play level up sound and switch to the new level's music
+            if audio.level_up:
+                audio.level_up.play()
+            audio.stop_music(500)
+            audio.play_level_music(self.current_level)
+
+    def _on_player_destroyed(self):
+        """Handle player death: update high score, play sounds, stop music."""
+        self.game_over = True
+        if self.score > self.high_score:
+            self.high_score = self.score
+            if audio.highscore:
+                audio.highscore.play()
+        if audio.game_over:
+            audio.game_over.play()
+        audio.stop_music(500)
 
     def update(self):
         """Update game state."""
@@ -831,6 +860,8 @@ class Game:
                 self.enemy_bullets.append(
                     EnemyBullet(ship.x, ship.y + ship.size // 2)
                 )
+                if audio.enemy_laser:
+                    audio.enemy_laser.play()
         self.enemy_ships = [s for s in self.enemy_ships if not s.is_off_screen()]
 
         # Update enemy bullets
@@ -858,6 +889,7 @@ class Game:
             for meteor in self.meteors[:]:
                 if bullet_rect.colliderect(meteor.get_rect()):
                     self.explosions.append(Explosion(meteor.x, meteor.y))
+                    audio.play_explosion()
                     self.meteors.remove(meteor)
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
@@ -871,6 +903,8 @@ class Game:
             for ship in self.enemy_ships[:]:
                 if bullet_rect.colliderect(ship.get_rect()):
                     self.explosions.append(Explosion(ship.x, ship.y))
+                    if audio.enemy_explosion:
+                        audio.enemy_explosion.play()
                     self.enemy_ships.remove(ship)
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
@@ -887,11 +921,11 @@ class Game:
                     self.meteors.remove(meteor)
                     self.score += SCORE_PER_DODGE
                     self.level_score += SCORE_PER_DODGE
+                    if audio.hit:
+                        audio.hit.play()
 
                     if self.player.lives <= 0:
-                        self.game_over = True
-                        if self.score > self.high_score:
-                            self.high_score = self.score
+                        self._on_player_destroyed()
                 break
 
         # Check player vs enemy ship collisions (level 5)
@@ -902,11 +936,11 @@ class Game:
                     self.enemy_ships.remove(ship)
                     self.score += SCORE_PER_DODGE
                     self.level_score += SCORE_PER_DODGE
+                    if audio.hit:
+                        audio.hit.play()
 
                     if self.player.lives <= 0:
-                        self.game_over = True
-                        if self.score > self.high_score:
-                            self.high_score = self.score
+                        self._on_player_destroyed()
                 break
 
         # Check player vs enemy bullet collisions (level 5)
@@ -916,11 +950,11 @@ class Game:
                     self.enemy_bullets.remove(ebullet)
                     self.score += SCORE_PER_DODGE
                     self.level_score += SCORE_PER_DODGE
+                    if audio.hit:
+                        audio.hit.play()
 
                     if self.player.lives <= 0:
-                        self.game_over = True
-                        if self.score > self.high_score:
-                            self.high_score = self.score
+                        self._on_player_destroyed()
                 break
 
         # Update explosions
@@ -1106,6 +1140,10 @@ class Game:
         speed_range = (level_data["meteor_min_speed"], level_data["meteor_max_speed"])
         for _ in range(INITIAL_METEORS):
             self.spawn_meteor(speed=random.uniform(1, 3), speed_range=speed_range)
+
+        # Restart music for level 1
+        audio.stop_music_immediate()
+        audio.play_level_music(1)
 
     def run(self):
         """Main game loop."""
