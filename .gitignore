@@ -9,8 +9,11 @@ build/
 dist/
 *.spec
 
-# Original downloaded sound files (source material, organized copies in sfx/ and music/)
+# Original downloaded source files (organized copies in the proper locations)
 assets/sounds/*.zip
 assets/sounds/*.wav
 assets/sounds/*.ogg
 assets/sounds/*.mp3
+assets/images/*.zip
+assets/images/ship.png
+assets/images/ship1.png
