@@ -317,7 +317,7 @@ class Meteor:
     """Falling meteor that the player must dodge or shoot."""
 
     def __init__(self, meteor_images, speed_range):
-        self.size = random.randint(15, 35)
+        self.size = random.randint(22, 45)
         self.x = random.randint(self.size, WINDOW_WIDTH - self.size)
         self.y = -self.size
         # speed_range is a (min, max) tuple with the current level's speed
