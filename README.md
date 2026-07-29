@@ -222,9 +222,11 @@ meteor_dodge/
 │       │   ├── explosion2.wav
 │       │   ├── explosion3.wav
 │       │   ├── hit.wav
-│       │   ├── game_over.wav
-│       │   ├── level_up.wav
-│       │   └── highscore.mp3
+│   │       ├── game_over.wav
+│   │       ├── level_up.wav
+│   │       ├── click.wav
+│   │       ├── pause.wav
+│   │       └── highscore.mp3
 │       └── music/           # Background music (OGG)
 │           ├── level1.ogg
 │           ├── level2.ogg
@@ -255,6 +257,7 @@ Sound effects and music used in this game are courtesy of:
 | Hit, game over, level up    | Robin Lamb       | Orc Commander Audio Files                        | Free (thanks enough) |
 | High score                  | Robin Lamb       | Orcs Victorious                                  | Free (thanks enough) |
 | Level 1, 2, 4 music         | Juhani Junkala   | JRPG Music Pack #5 [Action]                      | CC0     |
+| Click, pause                | m1chiboi         | UI Soundpack for beansjam mobile                 | Free (thanks enough) |
 | Level 3 music               | (unknown)        | accion.ogg                                       | (unknown) |
 | Level 5 music               | (unknown)        | boss theme.ogg                                   | (unknown) |
 
