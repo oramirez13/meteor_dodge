@@ -9,6 +9,11 @@ Controls:
     SPACE or ENTER to restart after game over
 
 Author: Orami
+
+Attribution / Credits:
+    Sound effects by exewin (CC-BY 3.0):
+    https://github.com/exewin
+    https://exewin.github.io/
 """
 
 import pygame
