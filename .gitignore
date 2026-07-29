@@ -17,3 +17,6 @@ assets/sounds/*.mp3
 assets/images/*.zip
 assets/images/ship.png
 assets/images/ship1.png
+
+# Original downloaded UI sound packs
+assets/sounds/UI Soundpack*.zip

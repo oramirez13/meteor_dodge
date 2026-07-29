@@ -550,6 +550,8 @@ Each sound has a predefined volume to create a balanced mix:
 | level_up           | 0.50   |
 | enemy_laser        | 0.20   |
 | enemy_explosion    | 0.40   |
+| click              | 0.30   |
+| pause_sound        | 0.40   |
 | highscore          | 0.50   |
 | Background music   | 0.30   |
 
@@ -592,7 +594,7 @@ When the player advances to a new level, the current music fades out over 500ms 
 | Enemy shoots             | `enemy_laser.wav`  | Medium   |
 | New high score           | `highscore.mp3`    | Medium   |
 | Pause / Unpause          | `pause.wav`        | Medium   |
-| UI / Button click        | `click.wav`        | Low      |
+| UI / Button click        | `click.wav`        | Medium   |
 
 Sounds marked with a priority of "Low" or "Medium" may not be available if the corresponding audio file was not found; the game handles this gracefully by checking if the sound exists before playing it.
 
@@ -608,7 +610,9 @@ assets/sounds/
     explosion3.wav       # Meteor explosion (variant 3)
     hit.wav              # Player takes damage
     game_over.wav        # Player dies
-    level_up.wav         # Level advancement
+     level_up.wav         # Level advancement
+     click.wav            # UI / button click
+     pause.wav            # Pause / unpause
     highscore.mp3        # New high score
   music/
     level1.ogg           # Nebula theme
