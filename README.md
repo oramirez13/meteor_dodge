@@ -101,6 +101,10 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 - Invincibility frames after being hit
 - Pause/Resume with P key
 - Particle explosion effects
+- Sound effects for shooting, explosions, hits, and level transitions
+- Background music tracks unique to each level
+- Random explosion sound variants (reduces audio repetition)
+- Volume-balanced audio mix
 
 ## How It Works
 
@@ -200,14 +204,33 @@ The game already sends your score automatically when it ends. The JSON payload l
 ```
 meteor_dodge/
 ├── meteor_dodge.py          # Main game
-├── assets/images/           # Game images
-│   ├── background_01.png    # Level 1 background
-│   ├── background_02.png    # Level 2 background
-│   ├── background_03.png    # Level 3 background
-│   ├── background_04.png    # Level 4 background
-│   ├── background_05.png    # Level 5 background
-│   ├── player.png           # Player ship
-│   └── meteor.png           # Meteor sprite
+├── audio.py                 # Audio manager (SFX and music)
+├── assets/
+│   ├── images/              # Game images
+│   │   ├── background_01.png
+│   │   ├── background_02.png
+│   │   ├── background_03.png
+│   │   ├── background_04.png
+│   │   ├── background_05.png
+│   │   ├── player.png
+│   │   └── meteor.png
+│   └── sounds/              # Game audio
+│       ├── sfx/             # Sound effects (WAV, MP3)
+│       │   ├── laser.wav
+│       │   ├── enemy_laser.wav
+│       │   ├── explosion.wav
+│       │   ├── explosion2.wav
+│       │   ├── explosion3.wav
+│       │   ├── hit.wav
+│       │   ├── game_over.wav
+│       │   ├── level_up.wav
+│       │   └── highscore.mp3
+│       └── music/           # Background music (OGG)
+│           ├── level1.ogg
+│           ├── level2.ogg
+│           ├── level3.ogg
+│           ├── level4.ogg
+│           └── level5.ogg
 ├── screenshots/             # Example screenshots
 │   ├── meteor_dodge_01.png
 │   └── meteor_dodge_02.png
@@ -221,6 +244,23 @@ meteor_dodge/
 ├── STEP-BYSTEP.md           # Step by step guide to install and play
 ├── .gitignore               # Excludes cache and venv
 └── README.md                # This file
+
+## Audio Credits
+
+Sound effects and music used in this game are courtesy of:
+
+| Asset                       | Author           | Source / Pack                                    | License |
+| --------------------------- | ---------------- | ------------------------------------------------ | ------- |
+| Laser, explosions           | kindland         | Alien Shoot Effects                              | Free (thanks enough) |
+| Hit, game over, level up    | Robin Lamb       | Orc Commander Audio Files                        | Free (thanks enough) |
+| High score                  | Robin Lamb       | Orcs Victorious                                  | Free (thanks enough) |
+| Level 1, 2, 4 music         | Juhani Junkala   | JRPG Music Pack #5 [Action]                      | CC0     |
+| Level 3 music               | (unknown)        | accion.ogg                                       | (unknown) |
+| Level 5 music               | (unknown)        | boss theme.ogg                                   | (unknown) |
+
+If you are the author of `level3.ogg` or `level5.ogg` and would like proper attribution, please open an issue on the repository.
+
+---
 
 meteor_dodge_site/           # Laravel web application
 ├── app/Http/Controllers/    # ScoreController (store, index, leaderboard)

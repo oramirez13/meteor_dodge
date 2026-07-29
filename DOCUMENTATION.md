@@ -4,7 +4,7 @@ The project is a survival game built with **pygame** (a library for creating gam
 
 ---
 
-## 1. Imports (lines 14-18)
+## 1. Imports (lines 14-19)
 
 ```python
 import pygame    # Main game library (window, images, sound, events)
@@ -12,6 +12,8 @@ import random    # For generating random numbers (positions, speeds, colors)
 import sys       # To exit the game with sys.exit()
 import math      # For trigonometric calculations (explosion particle angles)
 import os        # To build file paths that work on any operating system
+import json      # To encode score data as JSON for the web server
+import audio     # Audio manager: loads and plays sound effects + music
 ```
 
 ---
@@ -235,7 +237,8 @@ This is the largest class. It coordinates everything.
 ### `__init__` (line 573) - Initialization
 
 1. **pygame.init()**: Starts all pygame modules (window, sound, keyboard, etc.)
-2. **Creates the window**: 800x600 pixels
+2. **audio.init()**: Initializes all sound effects (must be called after pygame.init so the mixer is ready)
+3. **Creates the window**: 800x600 pixels
 3. **Creates the clock**: Controls 60 FPS
 4. **Creates 3 fonts**: For large (48), medium (28), and small (20) text
 5. **Loads images**:
@@ -246,6 +249,7 @@ This is the largest class. It coordinates everything.
 6. **Creates empty lists**: For meteors, bullets, enemy ships, enemy bullets, explosions
 7. **Control variables**: score, high_score, game_over, frame_count, current_level, etc.
 8. **Initial spawn**: Creates 8 slow meteors (speed 1-3) at start
+9. **audio.play_level_music(1)**: Starts the background music for Level 1 (Nebula)
 
 ### `shoot` (line 666) - Shooting System
 
@@ -256,7 +260,7 @@ Reads the current level's ammo type and creates different bullets:
 - **spread**: 3 bullets in a fan (one straight, one with vx=-3, one with vx=+3)
 - **rapid**: 1 bullet straight up but with only 5 frames cooldown (vs 15 normal)
 
-After shooting, activates the cooldown based on the level.
+After shooting, activates the cooldown based on the level. It also plays the `laser.wav` sound effect (if the file is available).
 
 ### `handle_events` (line 708) - User Input
 
@@ -264,8 +268,8 @@ Processes pygame events:
 
 - `QUIT`: Closes the window
 - `ESCAPE`: Closes the game
-- `SPACE` on game over: Restarts
-- `P`: Toggles pause (only when not game over)
+- `SPACE` on game over: Restarts (plays click sound if available)
+- `P`: Toggles pause with a pause sound effect (only when not game over)
 - `SPACE` while playing: Shoots
 
 ### `check_level_advance` (line 728) - Level Advancement
@@ -281,6 +285,8 @@ If both are met:
 2. Resets `level_score` and `level_timer` to 0
 3. Clears enemy ships and enemy bullets
 4. Shows the notification for the new level
+5. Plays the `level_up.wav` sound effect
+6. Fades out the current music and starts the new level's music track
 
 ### `update` (line 758) - Game State Update
 
@@ -299,12 +305,13 @@ This is the heart of the game. Every frame it:
 9. **Update meteors**: Moves and removes those that left the screen
 10. **Bullet vs meteor collision**: If a bullet rectangle touches a meteor rectangle:
     - Creates explosion
+    - Plays a random explosion sound variant (one of `explosion.wav`, `explosion2.wav`, `explosion3.wav`)
     - Removes both
     - Adds 15 points
-11. **Bullet vs enemy ship collision**: Same but adds 30 points (x2)
-12. **Player vs meteor collision**: If they touch, the player loses 1 life. If it reaches 0, game over
-13. **Player vs enemy ship collision**: Same as with meteors
-14. **Player vs enemy bullet collision**: Same, the enemy bullet hurts the player
+11. **Bullet vs enemy ship collision**: Same but adds 30 points (x2), plays `enemy_explosion.wav`
+12. **Player vs meteor collision**: If they touch, the player loses 1 life, plays `hit.wav`. If it reaches 0, game over: plays `game_over.wav`, stops music, and plays `highscore.wav` if a new record was set
+13. **Player vs enemy ship collision**: Same audio behavior as with meteors
+14. **Player vs enemy bullet collision**: Same audio behavior
 15. **Update explosions**: Moves particles and removes dead ones
 16. **Update notification**: If it exists, reduces timer and removes it when expired
 
@@ -384,14 +391,14 @@ The `ScoreController::store()` method validates input (player_name: alphanumeric
 
 1. You run `python meteor_dodge.py`
 2. An 800x600 window is created
-3. All images for the 5 backgrounds, the ship, and the meteor are loaded
+3. All images and sound effects are loaded; Level 1 music starts playing
 4. Starts at **Level 1 (Nebula)** with a dark blue background and slow meteors
-5. Every second you earn 1 point. You can dodge (+5) or destroy (+15)
-6. When you reach 50 points AND have been alive for 60+ seconds, you advance to **Level 2 (Storm)**
+5. Every second you earn 1 point. Shooting plays a laser sound. Destroying meteors plays an explosion sound
+6. When you reach 50 points AND have been alive for 60+ seconds, you advance to **Level 2 (Storm)** with a level-up sound and new music
 7. The background changes, meteors move faster, and you now have **double shot**
-8. Progressively until **Level 5 (Warzone)** where enemy ships appear
-9. If you lose all 3 lives, "GAME OVER" appears with your score
-10. Press SPACE to restart from Level 1
+8. Progressively until **Level 5 (Warzone)** where enemy ships appear with their own laser sounds
+9. Taking damage plays a hit sound. If you lose all 3 lives, the game over sound plays, music fades out, and if you set a new record, the highscore sound plays
+10. Press SPACE to restart from Level 1 with the Nebula music again
 
 ---
 
@@ -467,7 +474,7 @@ pyinstaller --onefile --windowed --name "MeteorDodge" --add-data "assets;assets"
 
 ### How it works
 
-1. PyInstaller analyzes `meteor_dodge.py` to find all imported modules (pygame, random, sys, math, os)
+1. PyInstaller analyzes `meteor_dodge.py` to find all imported modules (pygame, audio, random, sys, math, os)
 2. Copies those modules and the Python interpreter into a package
 3. Compresses everything and appends it to a bootloader executable
 4. When run, the bootloader extracts the modules to a temporary directory and launches the game
@@ -483,3 +490,130 @@ MeteorDodge.spec       # Build configuration (can be reused with: pyinstaller Me
 ```
 
 **Note:** The executable is platform-specific. You must build it on the same OS where it will run. A Linux build will not run on Windows and vice versa.
+
+**Note:** The `--add-data "assets:assets"` flag bundles the entire `assets/` folder, which now includes both `images/` and `sounds/`. No additional flags are needed for audio support.
+
+---
+
+## 17. Audio System (`audio.py`)
+
+The audio system is implemented in a separate file `audio.py` and provides sound effects and background music for the game.
+
+### Architecture
+
+```
+audio.py
+  ├── _load_sound()       -> Loads a single WAV/MP3 as a Sound object
+  ├── init()              -> Loads ALL sound effects (call after pygame.init())
+  ├── play_explosion()    -> Plays a random explosion variant
+  ├── play_music()        -> Loads and plays an OGG music track
+  ├── play_level_music()  -> Plays the track for a given level (1-5)
+  ├── stop_music()        -> Fades out current music
+  └── stop_music_immediate() -> Stops music instantly
+```
+
+### Why a separate file
+
+- Keeps the main game file (`meteor_dodge.py`) focused on game logic
+- All audio code is centralized, making it easy to add or modify sounds
+- The module can be imported with a simple `import audio`
+
+### Initialization order
+
+```python
+import audio              # 1. Import module (variables are None)
+pygame.init()             # 2. Start pygame (includes mixer)
+audio.init()              # 3. Load all sounds (mixer is now ready)
+```
+
+This order is important. Calling `pygame.mixer.Sound()` before `pygame.init()` would crash because the mixer is not running.
+
+### Error handling
+
+Each sound is loaded inside a `try/except` block. If a file is missing or corrupted, a warning is printed and the variable is set to `None`. The game checks `if audio.laser:` before playing, so missing files do not cause crashes.
+
+```python
+if audio.laser:
+    audio.laser.play()
+```
+
+### Volume levels
+
+Each sound has a predefined volume to create a balanced mix:
+
+| Sound              | Volume |
+| ------------------ | ------ |
+| laser              | 0.15   |
+| explosion variants | 0.40   |
+| hit                | 0.50   |
+| game_over          | 0.60   |
+| level_up           | 0.50   |
+| enemy_laser        | 0.20   |
+| enemy_explosion    | 0.40   |
+| highscore          | 0.50   |
+| Background music   | 0.30   |
+
+### Explosion variants
+
+Three explosion sound files (`explosion.wav`, `explosion2.wav`, `explosion3.wav`) are loaded. Each time an explosion occurs, `random.choice()` picks one at random. This prevents the player from hearing the exact same sound every time, making the game feel more natural.
+
+```python
+explosion_variants = [s for s in [explosion, explosion2, explosion3] if s is not None]
+
+def play_explosion():
+    if explosion_variants:
+        random.choice(explosion_variants).play()
+```
+
+### Music by level
+
+Each level has a dedicated music track that matches its theme:
+
+| Level | Name      | Music File    | Source                  |
+| ----- | --------- | ------------- | ----------------------- |
+| 1     | Nebula    | `level1.ogg`  | Juhani Junkala (CC0)    |
+| 2     | Storm     | `level2.ogg`  | Juhani Junkala (CC0)    |
+| 3     | Belt      | `level3.ogg`  | accion.ogg              |
+| 4     | Supernova | `level4.ogg`  | Juhani Junkala (CC0)    |
+| 5     | Warzone   | `level5.ogg`  | boss theme.ogg          |
+
+When the player advances to a new level, the current music fades out over 500ms and the new level's track starts. On game over, the music fades out. On restart, it returns to Level 1 music.
+
+### Sound events summary
+
+| Event                    | Sound              | Priority |
+| ------------------------ | ------------------ | -------- |
+| Player shoots            | `laser.wav`        | High     |
+| Meteor destroyed         | Random explosion   | High     |
+| Enemy ship destroyed     | `enemy_explosion`  | High     |
+| Player takes damage      | `hit.wav`          | High     |
+| Game over                | `game_over.wav`    | High     |
+| Level up                 | `level_up.wav`     | High     |
+| Enemy shoots             | `enemy_laser.wav`  | Medium   |
+| New high score           | `highscore.mp3`    | Medium   |
+| Pause / Unpause          | `pause.wav`        | Medium   |
+| UI / Button click        | `click.wav`        | Low      |
+
+Sounds marked with a priority of "Low" or "Medium" may not be available if the corresponding audio file was not found; the game handles this gracefully by checking if the sound exists before playing it.
+
+### Audio assets location
+
+```
+assets/sounds/
+  sfx/
+    laser.wav            # Player shooting
+    enemy_laser.wav      # Enemy ship shooting
+    explosion.wav        # Meteor explosion (variant 1)
+    explosion2.wav       # Meteor explosion (variant 2)
+    explosion3.wav       # Meteor explosion (variant 3)
+    hit.wav              # Player takes damage
+    game_over.wav        # Player dies
+    level_up.wav         # Level advancement
+    highscore.mp3        # New high score
+  music/
+    level1.ogg           # Nebula theme
+    level2.ogg           # Storm theme
+    level3.ogg           # Belt theme
+    level4.ogg           # Supernova theme
+    level5.ogg           # Warzone theme
+```
