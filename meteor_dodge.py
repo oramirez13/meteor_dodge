@@ -6,7 +6,9 @@ Controls:
     Arrow keys or WASD to move the player
     SPACE to shoot
     ESC to quit
-    SPACE or ENTER to restart after game over
+    P to pause/resume
+    In menu: ARROWS to navigate, ENTER to start
+    SPACE or ENTER after game over to return to menu
 
 Author: Orami
 
@@ -64,10 +66,10 @@ BULLET_SPEED = 12
 # Images folders
 ASSETS_FOLDER = "assets/images"
 SHIP_FOLDER = os.path.join(ASSETS_FOLDER, "spaceships")
-SHIP_IMAGE_FILE = "ship.png"
 ENEMY_SHIP_IMAGE_FILE = "ship1.png"
 METEOR_FOLDER = os.path.join(ASSETS_FOLDER, "meteors")
 BACKGROUND_FOLDER = os.path.join(ASSETS_FOLDER, "backgrounds")
+CHARACTER_FOLDER = os.path.join(ASSETS_FOLDER, "characters")
 
 # Laravel API endpoint for submitting scores
 LARAVEL_URL = "http://localhost:8000/scores"
@@ -193,12 +195,15 @@ def load_image(filename, size=None, has_alpha=True, folder=ASSETS_FOLDER):
 class Player:
     """Player controlled by the keyboard."""
 
-    def __init__(self, image):
+    def __init__(self, image, character_image=None):
         self.x = WINDOW_WIDTH // 2
         self.y = WINDOW_HEIGHT - 80
         self.size = PLAYER_SIZE
         self.image = image
         # Stores the ship image, already loaded and scaled by the game.
+        # character_image es el retrato del personaje seleccionado.
+        # Se muestra en el HUD como indicador visual de la eleccion.
+        self.character_image = character_image
         self.lives = 3
         self.invincible = False
         self.invincible_timer = 0
@@ -592,6 +597,196 @@ class LevelNotification:
 
 
 # ============================================================
+# MENU CLASS (pantalla de inicio)
+# ============================================================
+
+
+class Menu:
+    """Pantalla de inicio con seleccion de personaje y nave."""
+
+    def __init__(self, character_images, character_names, ship_images, ship_names):
+        # character_images: lista de Surface (imagenes de personajes ya cargadas)
+        # character_names: lista de strings con los nombres para mostrar
+        # ship_images: lista de Surface (imagenes de naves ya cargadas y escaladas)
+        # ship_names: lista de strings con los nombres para mostrar
+        self.character_images = character_images
+        self.character_names = character_names
+        self.ship_images = ship_images
+        self.ship_names = ship_names
+
+        # Indice de la opcion seleccionada en cada fila
+        self.selected_char = 0
+        self.selected_ship = 0
+
+        # 0 = fila de personajes, 1 = fila de naves
+        self.selected_row = 0
+
+        # Posiciones fijas en la pantalla para cada fila
+        self.char_y = 240
+        self.ship_y = 390
+        self.preview_size = 80
+        # preview_size es el tamano al que se muestran las imagenes
+        # en el menu (80x80 pixeles), mas grande que en el juego
+        # para que se vean bien durante la seleccion.
+
+    def handle_event(self, event):
+        """Procesa un evento de teclado y devuelve una accion.
+
+        Acciones posibles:
+            None   -> no paso nada
+            "start" -> el jugador presiono Enter para comenzar
+        """
+        if event.type == pygame.KEYDOWN:
+            # Flecha izquierda: opcion anterior en la fila actual
+            if event.key == pygame.K_LEFT:
+                if self.selected_row == 0:
+                    # Cicla hacia atras en la lista de personajes
+                    self.selected_char = (self.selected_char - 1) % len(self.character_images)
+                else:
+                    # Cicla hacia atras en la lista de naves
+                    self.selected_ship = (self.selected_ship - 1) % len(self.ship_images)
+                if audio.click:
+                    audio.click.play()
+
+            # Flecha derecha: opcion siguiente en la fila actual
+            elif event.key == pygame.K_RIGHT:
+                if self.selected_row == 0:
+                    # Cicla hacia adelante en la lista de personajes
+                    self.selected_char = (self.selected_char + 1) % len(self.character_images)
+                else:
+                    # Cicla hacia adelante en la lista de naves
+                    self.selected_ship = (self.selected_ship + 1) % len(self.ship_images)
+                if audio.click:
+                    audio.click.play()
+
+            # Flecha arriba: sube a la fila de personajes
+            elif event.key == pygame.K_UP:
+                self.selected_row = 0
+                if audio.click:
+                    audio.click.play()
+
+            # Flecha abajo: baja a la fila de naves
+            elif event.key == pygame.K_DOWN:
+                self.selected_row = 1
+                if audio.click:
+                    audio.click.play()
+
+            # Enter: confirma la seleccion y empieza el juego
+            elif event.key == pygame.K_RETURN:
+                if audio.click:
+                    audio.click.play()
+                return "start"
+
+        return None
+
+    def draw(self, surface, font_large, font_medium, font_small):
+        """Dibuja el menu completo en la pantalla."""
+        # Fondo negro
+        surface.fill(BLACK)
+
+        # Titulo del juego centrado en la parte superior
+        title_text = font_large.render("METEOR DODGE", True, YELLOW)
+        title_rect = title_text.get_rect(center=(WINDOW_WIDTH // 2, 80))
+        surface.blit(title_text, title_rect)
+
+        # Dibujar una linea decorativa debajo del titulo
+        pygame.draw.line(surface, GRAY, (200, 110), (600, 110), 2)
+
+        # ---- SECCION DE PERSONAJES ----
+        # Etiqueta de la seccion
+        char_label = font_medium.render("SELECT CHARACTER", True, WHITE)
+        char_label_rect = char_label.get_rect(center=(WINDOW_WIDTH // 2, 170))
+        surface.blit(char_label, char_label_rect)
+
+        # Flecha izquierda para personajes
+        left_arrow = font_large.render("<", True, WHITE)
+        left_rect = left_arrow.get_rect(
+            right=(WINDOW_WIDTH // 2 - self.preview_size - 20),
+            centery=self.char_y
+        )
+        surface.blit(left_arrow, left_rect)
+
+        # Imagen del personaje actual centrada
+        char_img = self.character_images[self.selected_char]
+        char_rect = char_img.get_rect(center=(WINDOW_WIDTH // 2, self.char_y))
+        surface.blit(char_img, char_rect)
+
+        # Si esta fila esta seleccionada, dibujar un recuadro amarillo
+        # alrededor de la imagen para indicar que se puede navegar aqui.
+        if self.selected_row == 0:
+            pygame.draw.rect(surface, YELLOW, char_rect.inflate(8, 8), 3)
+
+        # Flecha derecha para personajes
+        right_arrow = font_large.render(">", True, WHITE)
+        right_rect = right_arrow.get_rect(
+            left=(WINDOW_WIDTH // 2 + self.preview_size + 20),
+            centery=self.char_y
+        )
+        surface.blit(right_arrow, right_rect)
+
+        # Nombre del personaje debajo de la imagen
+        char_name = font_small.render(
+            self.character_names[self.selected_char], True, WHITE
+        )
+        char_name_rect = char_name.get_rect(
+            center=(WINDOW_WIDTH // 2, self.char_y + self.preview_size // 2 + 20)
+        )
+        surface.blit(char_name, char_name_rect)
+
+        # ---- SECCION DE NAVES ----
+        # Etiqueta de la seccion
+        ship_label = font_medium.render("SELECT SHIP", True, WHITE)
+        ship_label_rect = ship_label.get_rect(center=(WINDOW_WIDTH // 2, 320))
+        surface.blit(ship_label, ship_label_rect)
+
+        # Flecha izquierda para naves
+        left_arrow2 = font_large.render("<", True, WHITE)
+        left_rect2 = left_arrow2.get_rect(
+            right=(WINDOW_WIDTH // 2 - self.preview_size - 20),
+            centery=self.ship_y
+        )
+        surface.blit(left_arrow2, left_rect2)
+
+        # Imagen de la nave actual centrada
+        ship_img = self.ship_images[self.selected_ship]
+        ship_rect = ship_img.get_rect(center=(WINDOW_WIDTH // 2, self.ship_y))
+        surface.blit(ship_img, ship_rect)
+
+        # Si esta fila esta seleccionada, dibujar un recuadro amarillo
+        if self.selected_row == 1:
+            pygame.draw.rect(surface, YELLOW, ship_rect.inflate(8, 8), 3)
+
+        # Flecha derecha para naves
+        right_arrow2 = font_large.render(">", True, WHITE)
+        right_rect2 = right_arrow2.get_rect(
+            left=(WINDOW_WIDTH // 2 + self.preview_size + 20),
+            centery=self.ship_y
+        )
+        surface.blit(right_arrow2, right_rect2)
+
+        # Nombre de la nave debajo de la imagen
+        ship_name = font_small.render(
+            self.ship_names[self.selected_ship], True, WHITE
+        )
+        ship_name_rect = ship_name.get_rect(
+            center=(WINDOW_WIDTH // 2, self.ship_y + self.preview_size // 2 + 20)
+        )
+        surface.blit(ship_name, ship_name_rect)
+
+        # ---- INSTRUCCIONES AL PIE ----
+        inst_text = font_small.render(
+            "Use ARROW KEYS to navigate, ENTER to start", True, GRAY
+        )
+        inst_rect = inst_text.get_rect(center=(WINDOW_WIDTH // 2, 520))
+        surface.blit(inst_text, inst_rect)
+
+        # Creditos
+        cred_text = font_small.render("ESC to quit", True, GRAY)
+        cred_rect = cred_text.get_rect(center=(WINDOW_WIDTH // 2, 550))
+        surface.blit(cred_text, cred_rect)
+
+
+# ============================================================
 # GAME CLASS
 # ============================================================
 
@@ -610,12 +805,6 @@ class Game:
         self.font_large = pygame.font.Font(None, 48)
         self.font_medium = pygame.font.Font(None, 28)
         self.font_small = pygame.font.Font(None, 20)
-
-        # Load player ship image
-        self.ship_image = load_image(
-            SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE),
-            folder=SHIP_FOLDER, has_alpha=True
-        )
 
         # Load enemy ship image (will be flipped when drawn to point downward)
         self.enemy_ship_image = load_image(
@@ -643,42 +832,77 @@ class Game:
             )
             self.backgrounds[level_num] = bg_image
 
-        self.player = Player(self.ship_image)
+        # ---- Cargar naves disponibles para el menu ----
+        # Lista de archivos de naves (excluyendo ship1.png que es la nave enemiga)
+        ship_files = [
+            "ship.png", "e01.png", "e02.png", "e03.png",
+            "fxt2.png", "fxt7.png", "KBUM.png", "mini1.png",
+            "MK 1K.png", "moroder.png", "skyBlanc.png",
+        ]
+        self.ship_images = []
+        self.ship_names = []
+        for sf in ship_files:
+            # Cargar cada nave escalada al tamano del jugador
+            img = load_image(sf, (PLAYER_SIZE, PLAYER_SIZE), folder=SHIP_FOLDER, has_alpha=True)
+            self.ship_images.append(img)
+            # El nombre visible es el nombre del archivo sin extension
+            name = sf.rsplit(".", 1)[0]  # Elimina la extension ".png"
+            self.ship_names.append(name)
+        # Nota: rsplit(".", 1) separa el string por el ultimo punto
+        # y devuelve [nombre, "png"]. Con [0] tomamos solo el nombre.
+
+        # ---- Cargar personajes disponibles para el menu ----
+        character_files = [
+            "AliceBlur.png", "mat.png", "stephen.png",
+            "technician.png", "zotron.png",
+        ]
+        self.character_images = []
+        self.character_names = []
+        for cf in character_files:
+            # Cargar cada personaje a 80x80 para que se vea bien en el menu
+            img = load_image(cf, (80, 80), folder=CHARACTER_FOLDER, has_alpha=True)
+            self.character_images.append(img)
+            # Limpiar el nombre: quitar extension y "Blur" del final
+            name = cf.rsplit(".", 1)[0]
+            name = name.replace("Blur", "")  # "AliceBlur" -> "Alice"
+            self.character_names.append(name)
+
+        # ---- Menu de inicio ----
+        # El menu usa las imagenes de naves SIN escalar (a 80x80 para
+        # que se vean grandes en la pantalla de seleccion).
+        menu_ship_images = []
+        for sf in ship_files:
+            img = load_image(sf, (80, 80), folder=SHIP_FOLDER, has_alpha=True)
+            menu_ship_images.append(img)
+
+        self.menu = Menu(
+            self.character_images, self.character_names,
+            menu_ship_images, self.ship_names
+        )
+
+        # Estado del juego: "menu" o "playing"
+        self.state = "menu"
+
+        # Variables de juego (se inicializan cuando empieza a jugar)
+        self.player = None
+        self.selected_char_idx = 0
+        self.selected_ship_idx = 0
         self.meteors = []
         self.bullets = []
         self.enemy_ships = []
         self.enemy_bullets = []
         self.explosions = []
         self.level_notification = None
-
-        # Score and game control
         self.score = 0
         self.high_score = 0
         self.game_over = False
         self.running = True
         self.frame_count = 0
-
-        # Level system
         self.current_level = 1
         self.level_score = 0
-        # level_score is the score accumulated SINCE THE CURRENT LEVEL STARTED.
-        # It is used to determine if the player meets the advance threshold.
         self.level_timer = 0
-        # level_timer counts the frames spent in the current level.
-        # It is used to verify the player survives more than 60 seconds.
         self.shoot_cooldown_timer = 0
-
-        # Pause control
         self.paused = False
-
-        # Spawn initial meteors
-        level_data = LEVELS[self.current_level]
-        speed_range = (level_data["meteor_min_speed"], level_data["meteor_max_speed"])
-        for _ in range(INITIAL_METEORS):
-            self.spawn_meteor(speed=random.uniform(1, 3), speed_range=speed_range)
-
-        # Start background music for level 1
-        audio.play_level_music(1)
 
     def get_level_data(self):
         """Get the configuration dictionary for the current level."""
@@ -769,6 +993,13 @@ class Game:
                     self.running = False
                     return
 
+                # Si estamos en el menu, delegar los eventos al menu
+                if self.state == "menu":
+                    action = self.menu.handle_event(event)
+                    if action == "start":
+                        self.start_game()
+                    return
+
                 if self.game_over:
                     if event.key in (pygame.K_SPACE, pygame.K_RETURN):
                         if audio.click:
@@ -833,8 +1064,48 @@ class Game:
             audio.game_over.play()
         audio.stop_music(500)
 
+    def start_game(self):
+        """Inicia una partida con las selecciones del menu."""
+        # Guardar los indices seleccionados
+        self.selected_char_idx = self.menu.selected_char
+        self.selected_ship_idx = self.menu.selected_ship
+
+        # Crear el jugador con la nave y personaje seleccionados
+        ship_img = self.ship_images[self.selected_ship_idx]
+        char_img = self.character_images[self.selected_char_idx]
+        self.player = Player(ship_img, character_image=char_img)
+
+        # Reiniciar todas las variables del juego
+        self.meteors = []
+        self.bullets = []
+        self.enemy_ships = []
+        self.enemy_bullets = []
+        self.explosions = []
+        self.level_notification = None
+        self.score = 0
+        self.frame_count = 0
+        self.current_level = 1
+        self.level_score = 0
+        self.level_timer = 0
+        self.shoot_cooldown_timer = 0
+        self.paused = False
+        self.game_over = False
+        self.state = "playing"
+
+        # Generar los meteoros iniciales del nivel 1
+        level_data = LEVELS[self.current_level]
+        speed_range = (level_data["meteor_min_speed"], level_data["meteor_max_speed"])
+        for _ in range(INITIAL_METEORS):
+            self.spawn_meteor(speed=random.uniform(1, 3), speed_range=speed_range)
+
+        # Empezar la musica del nivel 1
+        audio.play_level_music(1)
+
     def update(self):
         """Update game state."""
+        if self.state == "menu":
+            return
+
         if self.game_over:
             # Update explosions even during game over for visual effect
             for exp in self.explosions:
@@ -1019,9 +1290,18 @@ class Game:
         )
         self.screen.blit(high_text, (WINDOW_WIDTH - high_text.get_width() - 10, 10))
 
-        # Lives
+        # Retrato del personaje seleccionado (esquina superior izquierda,
+        # al lado del marcador de vidas)
+        if self.player.character_image is not None:
+            # Redimensionar el retrato a 25x25 para que encaje en el HUD
+            portrait = pygame.transform.scale(self.player.character_image, (25, 25))
+            self.screen.blit(portrait, (10, 33))
+            # El texto de vidas se desplaza a la derecha del retrato
+            lives_x = 42
+        else:
+            lives_x = 10
         lives_text = self.font_small.render(f"Lives: {self.player.lives}", True, GREEN)
-        self.screen.blit(lives_text, (10, 35))
+        self.screen.blit(lives_text, (lives_x, 35))
 
         # Level number and name
         level_text = self.font_small.render(
@@ -1117,9 +1397,9 @@ class Game:
         )
         self.screen.blit(level_text, level_rect)
 
-        # Restart instruction
+        # Restart instruction (vuelve al menu para elegir de nuevo)
         restart_text = self.font_small.render(
-            "Press SPACE or ENTER to restart", True, GRAY
+            "Press SPACE or ENTER to return to menu", True, GRAY
         )
         restart_rect = restart_text.get_rect(
             center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 80)
@@ -1148,41 +1428,43 @@ class Game:
             pass
 
     def restart(self):
-        """Restart the game from level 1."""
+        """Vuelve al menu de inicio despues de game over."""
         self.send_score_to_server()
-        self.player = Player(self.ship_image)
+
+        # Detener todos los sonidos
+        audio.stop_all_sfx()
+        audio.stop_music_immediate()
+
+        # Volver al menu manteniendo el high_score
+        self.state = "menu"
+        self.player = None
         self.meteors = []
         self.bullets = []
         self.enemy_ships = []
         self.enemy_bullets = []
-        self.shoot_cooldown_timer = 0
         self.explosions = []
         self.level_notification = None
         self.score = 0
         self.frame_count = 0
         self.game_over = False
-
-        # Reset the level system
         self.current_level = 1
         self.level_score = 0
         self.level_timer = 0
-
-        # Spawn initial meteors for level 1
-        level_data = LEVELS[self.current_level]
-        speed_range = (level_data["meteor_min_speed"], level_data["meteor_max_speed"])
-        for _ in range(INITIAL_METEORS):
-            self.spawn_meteor(speed=random.uniform(1, 3), speed_range=speed_range)
-
-        # Stop any lingering sounds from the previous game and restart music
-        audio.stop_all_sfx()
-        audio.stop_music_immediate()
-        audio.play_level_music(1)
+        self.shoot_cooldown_timer = 0
+        self.paused = False
 
     def run(self):
         """Main game loop."""
         while self.running:
             self.handle_events()
             self.update()
+
+            # Si estamos en el menu, dibujar el menu y saltar el resto
+            if self.state == "menu":
+                self.menu.draw(self.screen, self.font_large, self.font_medium, self.font_small)
+                pygame.display.flip()
+                self.clock.tick(FPS)
+                continue
 
             # Draw everything
             self.draw_background()
