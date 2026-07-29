@@ -195,7 +195,7 @@ def load_image(filename, size=None, has_alpha=True, folder=ASSETS_FOLDER):
 class Player:
     """Player controlled by the keyboard."""
 
-    def __init__(self, image, character_image=None):
+    def __init__(self, image, character_image=None, character_name=""):
         self.x = WINDOW_WIDTH // 2
         self.y = WINDOW_HEIGHT - 80
         self.size = PLAYER_SIZE
@@ -204,6 +204,9 @@ class Player:
         # character_image es el retrato del personaje seleccionado.
         # Se muestra en el HUD como indicador visual de la eleccion.
         self.character_image = character_image
+        self.character_name = character_name
+        # character_name guarda el nombre del personaje (ej. "Alice")
+        # para poder reproducir sonidos especiales segun el personaje.
         self.lives = 3
         self.invincible = False
         self.invincible_timer = 0
@@ -1073,7 +1076,8 @@ class Game:
         # Crear el jugador con la nave y personaje seleccionados
         ship_img = self.ship_images[self.selected_ship_idx]
         char_img = self.character_images[self.selected_char_idx]
-        self.player = Player(ship_img, character_image=char_img)
+        char_name = self.character_names[self.selected_char_idx]
+        self.player = Player(ship_img, character_image=char_img, character_name=char_name)
 
         # Reiniciar todas las variables del juego
         self.meteors = []
@@ -1224,7 +1228,9 @@ class Game:
                     self.meteors.remove(meteor)
                     self.score += SCORE_PER_DODGE
                     self.level_score += SCORE_PER_DODGE
-                    if audio.hit:
+                    if self.player.character_name == "Alice" and audio.hit_female:
+                        audio.hit_female.play()
+                    elif audio.hit:
                         audio.hit.play()
 
                     if self.player.lives <= 0:
@@ -1239,7 +1245,9 @@ class Game:
                     self.enemy_ships.remove(ship)
                     self.score += SCORE_PER_DODGE
                     self.level_score += SCORE_PER_DODGE
-                    if audio.hit:
+                    if self.player.character_name == "Alice" and audio.hit_female:
+                        audio.hit_female.play()
+                    elif audio.hit:
                         audio.hit.play()
 
                     if self.player.lives <= 0:
@@ -1253,7 +1261,9 @@ class Game:
                     self.enemy_bullets.remove(ebullet)
                     self.score += SCORE_PER_DODGE
                     self.level_score += SCORE_PER_DODGE
-                    if audio.hit:
+                    if self.player.character_name == "Alice" and audio.hit_female:
+                        audio.hit_female.play()
+                    elif audio.hit:
                         audio.hit.play()
 
                     if self.player.lives <= 0:

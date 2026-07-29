@@ -33,6 +33,7 @@ MUSIC_FOLDER = os.path.join("assets", "sounds", "music")
 laser = None
 explosion = None
 hit = None
+hit_female = None
 game_over = None
 level_up = None
 click = None
@@ -80,7 +81,7 @@ def init():
 
     # The 'global' keyword tells Python to modify the module-level
     # variables instead of creating new local ones.
-    global laser, explosion, hit
+    global laser, explosion, hit, hit_female
     global game_over, level_up, click, pause_sound
     global enemy_laser, highscore
 
@@ -91,6 +92,7 @@ def init():
     laser = _load_sound("laser.wav", 0.15)
     explosion = _load_sound("explosion.wav", 0.40)
     hit = _load_sound("hit.wav", 0.50)
+    hit_female = _load_sound("colourmeunimpressed.ogg", 0.50)
     game_over = _load_sound("game_over.wav", 0.60)
     level_up = _load_sound("level_up.wav", 0.50)
     click = _load_sound("click.wav", 0.30)
