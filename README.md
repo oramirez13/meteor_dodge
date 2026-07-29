@@ -95,7 +95,7 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 - Progress bar showing advancement toward the next level
 - Level notification when advancing
 - Keyboard-controlled player (arrows/WASD) with trail effect
-- **17 meteor sprite variants** across 4 visual types and 3 sizes for visual variety
+- **4 meteor sprite variants** (meteor1.png - meteor4.png) for visual variety
 - Destroy meteors for bonus points (15 pts vs 5 pts for dodging)
 - Score tracking with high score
 - Lives system (3 lives)
@@ -213,13 +213,11 @@ meteor_dodge/
 │   │   │   ├── background_03.png
 │   │   │   ├── background_04.png
 │   │   │   └── background_05.png
-│   │   ├── meteors/         # 17 meteor sprite variants
-│   │   │   ├── meteor.png
-│   │   │   ├── meteor1.png  ... meteor4.png
-│   │   │   ├── a10000.png   a30000.png   a40000.png
-│   │   │   ├── b10000.png   b30000.png   b40000.png
-│   │   │   ├── c10000.png   c30000.png   c40000.png
-│   │   │   └── d10000.png   d30000.png   d40000.png
+│   │   ├── meteors/         # 4 meteor sprite variants
+│   │   │   ├── meteor1.png
+│   │   │   ├── meteor2.png
+│   │   │   ├── meteor3.png
+│   │   │   └── meteor4.png
 │   │   └── spaceships/      # Player and enemy ship
 │   │       ├── ship.png
 │   │       └── ship1.png

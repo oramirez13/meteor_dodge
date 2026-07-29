@@ -623,17 +623,10 @@ class Game:
             folder=SHIP_FOLDER, has_alpha=True
         )
 
-        # Load meteor images (variety of types and sizes)
+        # Load meteor images (4 visual variants)
         # The Meteor class picks a random image from this list each time
         # a new meteor spawns, giving visual variety to falling meteors.
-        meteor_filenames = [
-            "meteor.png",
-            "meteor1.png", "meteor2.png", "meteor3.png", "meteor4.png",
-            "a10000.png", "a30000.png", "a40000.png",
-            "b10000.png", "b30000.png", "b40000.png",
-            "c10000.png", "c30000.png", "c40000.png",
-            "d10000.png", "d30000.png", "d40000.png",
-        ]
+        meteor_filenames = ["meteor1.png", "meteor2.png", "meteor3.png", "meteor4.png"]
         self.meteor_images = [
             load_image(f, folder=METEOR_FOLDER, has_alpha=True)
             for f in meteor_filenames
