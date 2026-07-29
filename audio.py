@@ -17,7 +17,6 @@ Usage:
 
 import pygame
 import os
-import random
 
 # Folder paths for sound effects and music
 # os.path.join builds the path using the correct separator for each OS.
@@ -33,19 +32,13 @@ MUSIC_FOLDER = os.path.join("assets", "sounds", "music")
 
 laser = None
 explosion = None
-explosion2 = None
-explosion3 = None
 hit = None
 game_over = None
 level_up = None
 click = None
 pause_sound = None
 enemy_laser = None
-enemy_explosion = None
 highscore = None
-
-# List of available explosion variants for random selection
-explosion_variants = []
 
 
 def _load_sound(filename, volume=1.0):
@@ -87,10 +80,9 @@ def init():
 
     # The 'global' keyword tells Python to modify the module-level
     # variables instead of creating new local ones.
-    global laser, explosion, explosion2, explosion3, hit
+    global laser, explosion, hit
     global game_over, level_up, click, pause_sound
-    global enemy_laser, enemy_explosion, highscore
-    global explosion_variants
+    global enemy_laser, highscore
 
     # Each sound is loaded with its own volume level.
     # Volume values range from 0.0 (silent) to 1.0 (full).
@@ -98,33 +90,19 @@ def init():
     # a balanced mix.
     laser = _load_sound("laser.wav", 0.15)
     explosion = _load_sound("explosion.wav", 0.40)
-    explosion2 = _load_sound("explosion2.wav", 0.40)
-    explosion3 = _load_sound("explosion3.wav", 0.40)
     hit = _load_sound("hit.wav", 0.50)
     game_over = _load_sound("game_over.wav", 0.60)
     level_up = _load_sound("level_up.wav", 0.50)
     click = _load_sound("click.wav", 0.30)
     pause_sound = _load_sound("pause.wav", 0.40)
     enemy_laser = _load_sound("enemy_laser.wav", 0.20)
-    enemy_explosion = _load_sound("enemy_explosion.wav", 0.40)
     highscore = _load_sound("highscore.mp3", 0.50)
-
-    # Build a list of only the explosion variants that loaded
-    # successfully. If a file is missing, it is excluded.
-    explosion_variants = [
-        s for s in [explosion, explosion2, explosion3] if s is not None
-    ]
 
 
 def play_explosion():
-    """Play a random explosion variant.
-
-    Using random.choice prevents the player from hearing the
-    exact same sound every time an explosion occurs.
-    """
-    if explosion_variants:
-        # random.choice picks one element at random from the list.
-        random.choice(explosion_variants).play()
+    """Play the explosion sound effect."""
+    if explosion:
+        explosion.play()
 
 
 # ============================================================

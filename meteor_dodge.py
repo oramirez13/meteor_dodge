@@ -316,7 +316,7 @@ class Meteor:
     """Falling meteor that the player must dodge or shoot."""
 
     def __init__(self, meteor_images, speed_range):
-        self.size = random.randint(22, 45)
+        self.size = random.randint(15, 35)
         self.x = random.randint(self.size, WINDOW_WIDTH - self.size)
         self.y = -self.size
         # speed_range is a (min, max) tuple with the current level's speed
@@ -917,8 +917,7 @@ class Game:
             for ship in self.enemy_ships[:]:
                 if bullet_rect.colliderect(ship.get_rect()):
                     self.explosions.append(Explosion(ship.x, ship.y))
-                    if audio.enemy_explosion:
-                        audio.enemy_explosion.play()
+                    audio.play_explosion()
                     self.enemy_ships.remove(ship)
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
