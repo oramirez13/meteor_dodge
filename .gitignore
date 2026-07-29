@@ -8,3 +8,9 @@ venv/
 build/
 dist/
 *.spec
+
+# Original downloaded sound files (source material, organized copies in sfx/ and music/)
+assets/sounds/*.zip
+assets/sounds/*.wav
+assets/sounds/*.ogg
+assets/sounds/*.mp3
