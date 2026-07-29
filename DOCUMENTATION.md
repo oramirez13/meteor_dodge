@@ -391,8 +391,9 @@ The `ScoreController::store()` method validates input (player_name: alphanumeric
 
 1. You run `python meteor_dodge.py`
 2. An 800x600 window is created
-3. All images and sound effects are loaded; Level 1 music starts playing
-4. Starts at **Level 1 (Nebula)** with a dark blue background and slow meteors
+3. All images and sound effects are loaded
+4. The **Main Menu** appears with the game title, character selection (5 characters) and ship selection (11 ships). Use arrow keys to navigate and ENTER to start
+5. Starts at **Level 1 (Nebula)** with the chosen character portrait in the HUD and the selected ship
 5. Every second you earn 1 point. Shooting plays a laser sound. Destroying meteors plays an explosion sound
 6. When you reach 50 points AND have been alive for 60+ seconds, you advance to **Level 2 (Storm)** with a level-up sound and new music
 7. The background changes, meteors move faster, and you now have **double shot**

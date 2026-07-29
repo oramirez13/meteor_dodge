@@ -58,13 +58,15 @@ deactivate
 
 ## Controls
 
-| Input             | Action                  |
-| ----------------- | ----------------------- |
-| Arrow keys / WASD | Move the player ship    |
-| SPACE             | Shoot at meteors        |
-| P                 | Pause / Resume game     |
-| ESC               | Quit game               |
-| SPACE / ENTER     | Restart after game over |
+| Input             | Action                        |
+| ----------------- | ----------------------------- |
+| Arrow keys / WASD | Move the player ship          |
+| SPACE             | Shoot at meteors              |
+| P                 | Pause / Resume game           |
+| ESC               | Quit game                     |
+| SPACE / ENTER     | Return to menu after game over |
+| In menu: ARROWS   | Navigate character / ship     |
+| In menu: ENTER    | Start game                    |
 
 ## Level System
 
@@ -85,6 +87,7 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 
 ## Features
 
+- Main menu with character selection (5 characters) and ship selection (11 ships)
 - 5 unique levels with different backgrounds
 - 4 ammo types that change per level:
   - **Normal**: single bullet straight up
@@ -218,9 +221,22 @@ meteor_dodge/
 │   │   │   ├── meteor2.png
 │   │   │   ├── meteor3.png
 │   │   │   └── meteor4.png
-│   │   └── spaceships/      # Player and enemy ship
+│   │   ├── characters/      # 5 character portraits
+│   │   │   ├── AliceBlur.png
+│   │   │   ├── mat.png
+│   │   │   ├── stephen.png
+│   │   │   ├── technician.png
+│   │   │   └── zotron.png
+│   │   └── spaceships/      # Player and enemy ships (12 total)
 │   │       ├── ship.png
-│   │       └── ship1.png
+│   │       ├── ship1.png
+│   │       ├── e01.png ... e03.png
+│   │       ├── fxt2.png  fxt7.png
+│   │       ├── KBUM.png
+│   │       ├── mini1.png
+│   │       ├── MK 1K.png
+│   │       ├── moroder.png
+│   │       └── skyBlanc.png
 │   └── sounds/              # Game audio
 │       ├── sfx/             # Sound effects (WAV, MP3)
 │       │   ├── laser.wav
