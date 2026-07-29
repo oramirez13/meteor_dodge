@@ -28,7 +28,7 @@ These are fixed values that do not change during the game. They are in uppercase
 - **Meteors**: Minimum 8 at start, maximum 60 on screen
 - **Score**: +1 per second alive, +5 for dodging, +15 for destroying
 - **Bullets**: 4px wide, 12px tall, speed 12px per frame
-- **Assets**: `assets/images/` folder where all images are stored
+- **Assets**: `assets/images/` folder contains subdirectories for images; `assets/images/meteors/` holds 17 meteor sprite variants across 4 visual types (a, b, c, d) and 3 size variants (small/medium/large)
 
 ---
 
@@ -242,9 +242,9 @@ This is the largest class. It coordinates everything.
 3. **Creates the clock**: Controls 60 FPS
 4. **Creates 3 fonts**: For large (48), medium (28), and small (20) text
 5. **Loads images**:
-   - Player ship image (40x40)
-   - Enemy ship image (same as player, will be flipped when drawn)
-   - Meteor image
+   - Player ship image (40x40), from `assets/images/spaceships/ship.png`
+   - Enemy ship image (same as player, will be flipped when drawn), from `assets/images/spaceships/ship1.png`
+   - **17 meteor images** from `assets/images/meteors/`: 4 visual types (a, b, c, d) at 3 scales each, plus 5 named variants (meteor.png, meteor1-4.png)
    - Backgrounds for all 5 levels (stored in `self.backgrounds` dictionary)
 6. **Creates empty lists**: For meteors, bullets, enemy ships, enemy bullets, explosions
 7. **Control variables**: score, high_score, game_over, frame_count, current_level, etc.
@@ -555,17 +555,17 @@ Each sound has a predefined volume to create a balanced mix:
 | highscore          | 0.50   |
 | Background music   | 0.30   |
 
-### Explosion variants
+### Explosion sound
 
-Three explosion sound files (`explosion.wav`, `explosion2.wav`, `explosion3.wav`) are loaded. Each time an explosion occurs, `random.choice()` picks one at random. This prevents the player from hearing the exact same sound every time, making the game feel more natural.
+A single explosion sound file (`explosion.wav`) is loaded. When a meteor or enemy ship is destroyed, `play_explosion()` plays it.
 
 ```python
-explosion_variants = [s for s in [explosion, explosion2, explosion3] if s is not None]
-
 def play_explosion():
-    if explosion_variants:
-        random.choice(explosion_variants).play()
+    if explosion:
+        explosion.play()
 ```
+
+Future versions could load multiple explosion variants and pick one at random for more variety.
 
 ### Music by level
 
@@ -605,14 +605,12 @@ assets/sounds/
   sfx/
     laser.wav            # Player shooting
     enemy_laser.wav      # Enemy ship shooting
-    explosion.wav        # Meteor explosion (variant 1)
-    explosion2.wav       # Meteor explosion (variant 2)
-    explosion3.wav       # Meteor explosion (variant 3)
+    explosion.wav        # Meteor / ship explosion
     hit.wav              # Player takes damage
     game_over.wav        # Player dies
-     level_up.wav         # Level advancement
-     click.wav            # UI / button click
-     pause.wav            # Pause / unpause
+    level_up.wav         # Level advancement
+    click.wav            # UI / button click
+    pause.wav            # Pause / unpause
     highscore.mp3        # New high score
   music/
     level1.ogg           # Nebula theme

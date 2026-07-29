@@ -63,8 +63,11 @@ BULLET_SPEED = 12
 
 # Images folders
 ASSETS_FOLDER = "assets/images"
+SHIP_FOLDER = os.path.join(ASSETS_FOLDER, "spaceships")
 SHIP_IMAGE_FILE = "ship.png"
 ENEMY_SHIP_IMAGE_FILE = "ship1.png"
+METEOR_FOLDER = os.path.join(ASSETS_FOLDER, "meteors")
+BACKGROUND_FOLDER = os.path.join(ASSETS_FOLDER, "backgrounds")
 
 # Laravel API endpoint for submitting scores
 LARAVEL_URL = "http://localhost:8000/scores"
@@ -610,23 +613,41 @@ class Game:
 
         # Load player ship image
         self.ship_image = load_image(
-            SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE), has_alpha=True
+            SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE),
+            folder=SHIP_FOLDER, has_alpha=True
         )
 
         # Load enemy ship image (will be flipped when drawn to point downward)
         self.enemy_ship_image = load_image(
-            ENEMY_SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE), has_alpha=True
+            ENEMY_SHIP_IMAGE_FILE, (PLAYER_SIZE, PLAYER_SIZE),
+            folder=SHIP_FOLDER, has_alpha=True
         )
 
-        # Load the meteor image
-        self.meteor_images = [load_image("meteor.png", has_alpha=True)]
+        # Load meteor images (variety of types and sizes)
+        # The Meteor class picks a random image from this list each time
+        # a new meteor spawns, giving visual variety to falling meteors.
+        meteor_filenames = [
+            "meteor.png",
+            "meteor1.png", "meteor2.png", "meteor3.png", "meteor4.png",
+            "a10000.png", "a30000.png", "a40000.png",
+            "b10000.png", "b30000.png", "b40000.png",
+            "c10000.png", "c30000.png", "c40000.png",
+            "d10000.png", "d30000.png", "d40000.png",
+        ]
+        self.meteor_images = [
+            load_image(f, folder=METEOR_FOLDER, has_alpha=True)
+            for f in meteor_filenames
+        ]
 
         # Load backgrounds for all levels and store them in a dictionary
         # so they can be swapped when the player advances levels.
         self.backgrounds = {}
         for level_num, level_data in LEVELS.items():
             bg_file = level_data["background"]
-            bg_image = load_image(bg_file, (WINDOW_WIDTH, WINDOW_HEIGHT), has_alpha=False)
+            bg_image = load_image(
+                bg_file, (WINDOW_WIDTH, WINDOW_HEIGHT),
+                folder=BACKGROUND_FOLDER, has_alpha=False
+            )
             self.backgrounds[level_num] = bg_image
 
         self.player = Player(self.ship_image)

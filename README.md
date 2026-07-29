@@ -95,6 +95,7 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 - Progress bar showing advancement toward the next level
 - Level notification when advancing
 - Keyboard-controlled player (arrows/WASD) with trail effect
+- **17 meteor sprite variants** across 4 visual types and 3 sizes for visual variety
 - Destroy meteors for bonus points (15 pts vs 5 pts for dodging)
 - Score tracking with high score
 - Lives system (3 lives)
@@ -103,7 +104,6 @@ Each level has its own background image. Level 5 introduces **enemy ships** that
 - Particle explosion effects
 - Sound effects for shooting, explosions, hits, and level transitions
 - Background music tracks unique to each level
-- Random explosion sound variants (reduces audio repetition)
 - Volume-balanced audio mix
 
 ## How It Works
@@ -207,26 +207,33 @@ meteor_dodge/
 ├── audio.py                 # Audio manager (SFX and music)
 ├── assets/
 │   ├── images/              # Game images
-│   │   ├── background_01.png
-│   │   ├── background_02.png
-│   │   ├── background_03.png
-│   │   ├── background_04.png
-│   │   ├── background_05.png
-│   │   ├── player.png
-│   │   └── meteor.png
+│   │   ├── backgrounds/     # Level backgrounds (5 images)
+│   │   │   ├── background_01.png
+│   │   │   ├── background_02.png
+│   │   │   ├── background_03.png
+│   │   │   ├── background_04.png
+│   │   │   └── background_05.png
+│   │   ├── meteors/         # 17 meteor sprite variants
+│   │   │   ├── meteor.png
+│   │   │   ├── meteor1.png  ... meteor4.png
+│   │   │   ├── a10000.png   a30000.png   a40000.png
+│   │   │   ├── b10000.png   b30000.png   b40000.png
+│   │   │   ├── c10000.png   c30000.png   c40000.png
+│   │   │   └── d10000.png   d30000.png   d40000.png
+│   │   └── spaceships/      # Player and enemy ship
+│   │       ├── ship.png
+│   │       └── ship1.png
 │   └── sounds/              # Game audio
 │       ├── sfx/             # Sound effects (WAV, MP3)
 │       │   ├── laser.wav
 │       │   ├── enemy_laser.wav
 │       │   ├── explosion.wav
-│       │   ├── explosion2.wav
-│       │   ├── explosion3.wav
 │       │   ├── hit.wav
-│   │       ├── game_over.wav
-│   │       ├── level_up.wav
-│   │       ├── click.wav
-│   │       ├── pause.wav
-│   │       └── highscore.mp3
+│       │   ├── game_over.wav
+│       │   ├── level_up.wav
+│       │   ├── click.wav
+│       │   ├── pause.wav
+│       │   └── highscore.mp3
 │       └── music/           # Background music (OGG)
 │           ├── level1.ogg
 │           ├── level2.ogg
