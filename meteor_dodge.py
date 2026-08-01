@@ -49,6 +49,13 @@ GREEN = (50, 200, 50)
 BLUE = (50, 100, 220)
 PURPLE = (180, 50, 220)
 
+# Colores del titulo grande de la pantalla de inicio
+# (se definen aparte para cambiar el estilo del titulo sin tocar
+# la funcion draw_big_title)
+TITLE_MAIN_COLOR = ORANGE      # Color principal del texto
+TITLE_OUTLINE_COLOR = BLACK    # Color del contorno (borde)
+TITLE_SHADOW_COLOR = (80, 40, 0)  # Marron oscuro para la sombra
+
 # Game settings
 PLAYER_SIZE = 40
 PLAYER_SPEED = 8
@@ -600,6 +607,68 @@ class LevelNotification:
 
 
 # ============================================================
+# FUNCION PARA DIBUJAR EL TITULO GRANDE DEL MENU
+# ============================================================
+
+
+def draw_big_title(surface, text, center_x, center_y, font_size=90):
+    """Dibuja un titulo grande con sombra y contorno personalizado.
+
+    surface: la superficie donde se va a dibujar (por ejemplo self.screen).
+    text: el texto del titulo, por ejemplo "METEOR DODGE".
+    center_x: posicion horizontal del centro del titulo, en pixeles.
+    center_y: posicion vertical del centro del titulo, en pixeles.
+    font_size: tamano de la fuente. Un numero grande como 90 hace que
+    el titulo ocupe bastante espacio en la pantalla.
+    """
+
+    # pygame.font.Font(None, font_size) crea una fuente usando la fuente
+    # por defecto de pygame, igual que las fuentes del juego. Asi no hace
+    # falta instalar ni cargar ninguna fuente externa.
+    title_font = pygame.font.Font(None, font_size)
+
+    # ------------------------------------------------------------
+    # PASO 1: Dibujar la sombra
+    # ------------------------------------------------------------
+    # Se dibuja el mismo texto un poco mas abajo y a la derecha, en un
+    # color oscuro. Esto da la sensacion de que el titulo tiene volumen,
+    # como si estuviera "levantado" sobre el fondo.
+    shadow_surface = title_font.render(text, True, TITLE_SHADOW_COLOR)
+    shadow_rect = shadow_surface.get_rect(center=(center_x + 6, center_y + 6))
+    surface.blit(shadow_surface, shadow_rect)
+
+    # ------------------------------------------------------------
+    # PASO 2: Dibujar el contorno (borde)
+    # ------------------------------------------------------------
+    # Se dibuja el texto varias veces alrededor de la posicion central,
+    # desplazado un par de pixeles en cada direccion (arriba, abajo,
+    # izquierda, derecha y las cuatro diagonales). Las ocho copias
+    # forman un borde negro alrededor de las letras.
+    outline_surface = title_font.render(text, True, TITLE_OUTLINE_COLOR)
+
+    # Cada par (dx, dy) indica cuanto se mueve el texto en el eje
+    # horizontal (dx) y en el eje vertical (dy) para cada copia.
+    offsets = [
+        (-3, -3), (0, -3), (3, -3),
+        (-3, 0),           (3, 0),
+        (-3, 3),  (0, 3),  (3, 3),
+    ]
+
+    for dx, dy in offsets:
+        outline_rect = outline_surface.get_rect(
+            center=(center_x + dx, center_y + dy)
+        )
+        surface.blit(outline_surface, outline_rect)
+
+    # ------------------------------------------------------------
+    # PASO 3: Dibujar el texto principal, encima de todo lo anterior
+    # ------------------------------------------------------------
+    main_surface = title_font.render(text, True, TITLE_MAIN_COLOR)
+    main_rect = main_surface.get_rect(center=(center_x, center_y))
+    surface.blit(main_surface, main_rect)
+
+
+# ============================================================
 # MENU CLASS (pantalla de inicio)
 # ============================================================
 
@@ -687,13 +756,13 @@ class Menu:
         # Fondo negro
         surface.fill(BLACK)
 
-        # Titulo del juego centrado en la parte superior
-        title_text = font_large.render("METEOR DODGE", True, YELLOW)
-        title_rect = title_text.get_rect(center=(WINDOW_WIDTH // 2, 80))
-        surface.blit(title_text, title_rect)
+        # Titulo del juego centrado en la parte superior.
+        # Se usa draw_big_title, que dibuja el texto con sombra y
+        # contorno para que el titulo se vea mas llamativo.
+        draw_big_title(surface, "METEOR DODGE", WINDOW_WIDTH // 2, 75)
 
         # Dibujar una linea decorativa debajo del titulo
-        pygame.draw.line(surface, GRAY, (200, 110), (600, 110), 2)
+        pygame.draw.line(surface, GRAY, (200, 130), (600, 130), 2)
 
         # ---- SECCION DE PERSONAJES ----
         # Etiqueta de la seccion
