@@ -58,15 +58,15 @@ deactivate
 
 ## Controls
 
-| Input             | Action                        |
-| ----------------- | ----------------------------- |
-| Arrow keys / WASD | Move the player ship          |
-| SPACE             | Shoot at meteors              |
-| P                 | Pause / Resume game           |
-| ESC               | Quit game                     |
+| Input             | Action                         |
+| ----------------- | ------------------------------ |
+| Arrow keys / WASD | Move the player ship           |
+| SPACE             | Shoot at meteors               |
+| P                 | Pause / Resume game            |
+| ESC               | Quit game                      |
 | SPACE / ENTER     | Return to menu after game over |
-| In menu: ARROWS   | Navigate character / ship     |
-| In menu: ENTER    | Start game                    |
+| In menu: ARROWS   | Navigate character / ship      |
+| In menu: ENTER    | Start game                     |
 
 ## Level System
 
