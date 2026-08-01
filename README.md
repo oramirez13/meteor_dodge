@@ -198,9 +198,19 @@ The game already sends your score automatically when it ends. The JSON payload l
 
 ## Screenshots
 
-![Shooting at meteors](screenshots/meteor_dodge_01.png)
-![Game over screen](screenshots/meteor_dodge_02.png)
-![Pause button overlay](screenshots/meteor_dodge_03.png)
+Main menu where you choose your character and ship before starting:
+
+![Main menu: character and ship selection](screenshots/meteor_dodge_01.png)
+
+The "LEVEL COMPLETE" notification shown when you meet the conditions to advance to the next level:
+
+![Level complete notification](screenshots/meteor_dodge_06.png)
+
+Gameplay of Level 5 (Warzone), where enemy ships appear and shoot back at you:
+
+![Level 5: Warzone gameplay](screenshots/meteor_dodge_14.png)
+
+See [SCREENSHOTS.md](SCREENSHOTS.md) for the full gallery of all game screens.
 
 ## Project Structure
 
@@ -254,11 +264,13 @@ meteor_dodge/
 │           ├── level3.ogg
 │           ├── level4.ogg
 │           └── level5.ogg
-├── screenshots/             # Example screenshots
+├── screenshots/             # Game screenshots (see SCREENSHOTS.md)
 │   ├── meteor_dodge_01.png
-│   └── meteor_dodge_02.png
+│   ├── ...
+│   └── meteor_dodge_15.png
 ├── DOCUMENTATION.md         # Detailed code documentation (English)
 ├── INTERMEDIATE_CONCEPTS.md # Explains intermediate Python concepts used in the code
+├── SCREENSHOTS.md           # Full gallery of game screenshots
 ├── requirements.txt         # Dependencies
 ├── MeteorDodge.spec         # PyInstaller spec file (generated)
 ├── build/                   # PyInstaller build cache (can be deleted)
