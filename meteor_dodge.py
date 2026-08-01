@@ -219,6 +219,17 @@ class Player:
         self.invincible_timer = 0
         self.trail = []
 
+        # Calcular el tamano del trail azul segun el contenido visible
+        # de la nave. get_bounding_rect() mide solo los pixeles no
+        # transparentes de la imagen, ignorando el fondo. Asi las naves
+        # pequenas dejan un trail pequeno y no un cuadro azul enorme.
+        content_rect = self.image.get_bounding_rect()
+        # Se usa el promedio del ancho y del alto de la nave, reducido
+        # a la mitad, para que el trail no sea mas grande que la nave.
+        self.trail_max_size = int(
+            (content_rect.width + content_rect.height) / 2 * 0.5
+        )
+
     def update(self, keys_pressed):
         """Update player position based on keyboard input."""
         # Store trail positions
@@ -267,7 +278,11 @@ class Player:
         # The trail is drawn with simple rectangles to keep the
         # effect without complicating the code with semi-transparent images.
         for i, (tx, ty) in enumerate(self.trail):
-            size = int(self.size * (i / len(self.trail)) * 0.5)
+            # El tamano de cada cuadrado va encogiendo (i / len de la
+            # lista) hasta llegar a trail_max_size, que depende de la
+            # nave. Asi el trail nunca forma un cuadro mas grande
+            # que la propia nave.
+            size = int(self.trail_max_size * (i / len(self.trail)))
             if size > 0:
                 trail_rect = pygame.Rect(tx - size // 2, ty - size // 2, size, size)
                 pygame.draw.rect(surface, BLUE, trail_rect)
