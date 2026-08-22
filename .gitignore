@@ -15,3 +15,11 @@ dist/
 
 # Ignore all zip files in assets/images/
 assets/images/*.zip
+
+# Raw source audio files in assets/sounds/ root
+# (the organized copies used by the game live in sfx/ and music/)
+assets/sounds/*.wav
+assets/sounds/*.ogg
+assets/sounds/*.mp3
+assets/sounds/*.zip
+assets/sounds/INFO.txt
