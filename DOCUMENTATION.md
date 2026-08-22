@@ -305,10 +305,10 @@ This is the heart of the game. Every frame it:
 9. **Update meteors**: Moves and removes those that left the screen
 10. **Bullet vs meteor collision**: If a bullet rectangle touches a meteor rectangle:
     - Creates explosion
-    - Plays a random explosion sound variant (one of `explosion.wav`, `explosion2.wav`, `explosion3.wav`)
+    - Plays the explosion sound (`explosion.wav`) via `audio.play_explosion()`
     - Removes both
     - Adds 15 points
-11. **Bullet vs enemy ship collision**: Same but adds 30 points (x2), plays `enemy_explosion.wav`
+11. **Bullet vs enemy ship collision**: Same but adds 30 points (x2), plays the same explosion sound
 12. **Player vs meteor collision**: If they touch, the player loses 1 life, plays `hit.wav`. If it reaches 0, game over: plays `game_over.wav`, stops music, and plays `highscore.wav` if a new record was set
 13. **Player vs enemy ship collision**: Same audio behavior as with meteors
 14. **Player vs enemy bullet collision**: Same audio behavior
@@ -545,13 +545,13 @@ Each sound has a predefined volume to create a balanced mix:
 | Sound              | Volume |
 | ------------------ | ------ |
 | laser              | 0.15   |
-| explosion variants | 0.40   |
+| explosion          | 0.40   |
 | hit                | 0.50   |
+| hit_female         | 0.50   |
 | game_over          | 0.60   |
 | level_up           | 0.50   |
 | enemy_laser        | 0.20   |
-| enemy_explosion    | 0.40   |
-| click              | 0.30   |
+| click              | 0.40   |
 | pause_sound        | 0.40   |
 | highscore          | 0.50   |
 | Background music   | 0.30   |
@@ -584,18 +584,20 @@ When the player advances to a new level, the current music fades out over 500ms 
 
 ### Sound events summary
 
-| Event                    | Sound              | Priority |
-| ------------------------ | ------------------ | -------- |
-| Player shoots            | `laser.wav`        | High     |
-| Meteor destroyed         | Random explosion   | High     |
-| Enemy ship destroyed     | `enemy_explosion`  | High     |
-| Player takes damage      | `hit.wav`          | High     |
-| Game over                | `game_over.wav`    | High     |
-| Level up                 | `level_up.wav`     | High     |
-| Enemy shoots             | `enemy_laser.wav`  | Medium   |
-| New high score           | `highscore.mp3`    | Medium   |
-| Pause / Unpause          | `pause.wav`        | Medium   |
-| UI / Button click        | `click.wav`        | Medium   |
+| Event                    | Sound                       | Priority |
+| ------------------------ | --------------------------- | -------- |
+| Player shoots            | `laser.wav`                 | High     |
+| Meteor destroyed         | `explosion.wav`             | High     |
+| Enemy ship destroyed     | `explosion.wav`             | High     |
+| Player takes damage      | `hit.wav` / `hit_female`*   | High     |
+| Game over                | `game_over.wav`             | High     |
+| Level up                 | `level_up.wav`              | High     |
+| Enemy shoots             | `enemy_laser.wav`           | Medium   |
+| New high score           | `highscore.mp3`             | Medium   |
+| Pause / Unpause          | `pause.wav`                 | Medium   |
+| UI / Button click        | `click.wav`                 | Medium   |
+
+\* The female hit sound (`colourmeunimpressed.ogg`) plays instead of `hit.wav` when the selected character is Alice.
 
 Sounds marked with a priority of "Low" or "Medium" may not be available if the corresponding audio file was not found; the game handles this gracefully by checking if the sound exists before playing it.
 
@@ -607,7 +609,8 @@ assets/sounds/
     laser.wav            # Player shooting
     enemy_laser.wav      # Enemy ship shooting
     explosion.wav        # Meteor / ship explosion
-    hit.wav              # Player takes damage
+    hit.wav              # Player takes damage (male)
+    colourmeunimpressed.ogg  # Player takes damage (Alice character)
     game_over.wav        # Player dies
     level_up.wav         # Level advancement
     click.wav            # UI / button click

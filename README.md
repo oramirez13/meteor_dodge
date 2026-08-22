@@ -248,11 +248,12 @@ meteor_dodge/
 │   │       ├── moroder.png
 │   │       └── skyBlanc.png
 │   └── sounds/              # Game audio
-│       ├── sfx/             # Sound effects (WAV, MP3)
+│       ├── sfx/             # Sound effects (WAV, MP3, OGG)
 │       │   ├── laser.wav
 │       │   ├── enemy_laser.wav
 │       │   ├── explosion.wav
 │       │   ├── hit.wav
+│       │   ├── colourmeunimpressed.ogg  # Female hit sound (Alice)
 │       │   ├── game_over.wav
 │       │   ├── level_up.wav
 │       │   ├── click.wav
@@ -276,7 +277,7 @@ meteor_dodge/
 ├── build/                   # PyInstaller build cache (can be deleted)
 ├── dist/                    # Standalone executable output
 │   └── MeteorDodge          # The compiled game (73 MB)
-├── STEP-BYSTEP.md           # Step by step guide to install and play
+├── STEP-BY-STEP.md            # Step by step guide to install and play
 ├── .gitignore               # Excludes cache and venv
 └── README.md                # This file
 
@@ -291,10 +292,14 @@ Sound effects and music used in this game are courtesy of:
 | High score                  | Robin Lamb       | Orcs Victorious                                  | Free (thanks enough) |
 | Level 1, 2, 4 music         | Juhani Junkala   | JRPG Music Pack #5 [Action]                      | CC0     |
 | Click, pause                | m1chiboi         | UI Soundpack for beansjam mobile                 | Free (thanks enough) |
+| Female hit sound            | (see source pack)| colourmeunimpressed                              | Free     |
 | Level 3 music               | (unknown)        | accion.ogg                                       | (unknown) |
 | Level 5 music               | (unknown)        | boss theme.ogg                                   | (unknown) |
 
 If you are the author of `level3.ogg` or `level5.ogg` and would like proper attribution, please open an issue on the repository.
+
+Copyright/Attribution Notice:
+CC-BY 3.0 - https://github.com/exewin - https://exewin.github.io/
 
 ---
 
