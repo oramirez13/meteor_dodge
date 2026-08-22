@@ -38,6 +38,11 @@ WINDOW_HEIGHT = 600
 WINDOW_TITLE = "Meteor Dodge"
 FPS = 60
 
+# Custom event used to play the high score jingle a moment AFTER the
+# game over voice, so both sounds are heard clearly and do not overlap.
+# pygame.USEREVENT + 1 is the standard way to create your own events.
+HIGHSCORE_SOUND_EVENT = pygame.USEREVENT + 1
+
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -1075,6 +1080,12 @@ class Game:
                 self.running = False
                 return
 
+            # Evento programado: suena el jingle del record DESPUES de
+            # que termino la voz del game over (ver _on_player_destroyed)
+            if event.type == HIGHSCORE_SOUND_EVENT:
+                if audio.highscore:
+                    audio.highscore.play()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
@@ -1145,8 +1156,11 @@ class Game:
         self.game_over = True
         if self.score > self.high_score:
             self.high_score = self.score
-            if audio.highscore:
-                audio.highscore.play()
+            # No tocar el jingle todavia: se programa con un temporizador
+            # para que suene cuando la voz del game over haya terminado
+            # (la voz dura ~2.1s, por eso el evento va a los 2300 ms).
+            # loops=1 hace que el evento se dispare una sola vez.
+            pygame.time.set_timer(HIGHSCORE_SOUND_EVENT, 2300, loops=1)
         if audio.game_over:
             audio.game_over.play()
         audio.stop_music(500)
@@ -1529,6 +1543,10 @@ class Game:
         # el envio del puntaje.
         audio.stop_all_sfx()
         audio.stop_music_immediate()
+        # Cancelar el jingle del record si todavia no ha sonado,
+        # para que no aparezca de sorpresa en el menu o en la
+        # siguiente partida.
+        pygame.time.set_timer(HIGHSCORE_SOUND_EVENT, 0)
 
         # Enviar el puntaje al servidor DESPUES de limpiar el audio.
         # Esta funcion puede tardar hasta 3 segundos si el servidor
