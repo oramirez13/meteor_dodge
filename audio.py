@@ -167,6 +167,9 @@ def stop_all_sfx():
     This is useful when restarting the game so that long sounds
     from the previous session do not carry over into the new game.
     """
-    for sfx in [game_over, highscore, level_up]:
+    # Se incluyen los sonidos largos que pueden seguir sonando
+    # despues de morir: la voz del game over, la cancion del high
+    # score, la voz del level up y el grito femenino del golpe.
+    for sfx in [game_over, highscore, level_up, hit_female]:
         if sfx is not None:
             sfx.stop()
