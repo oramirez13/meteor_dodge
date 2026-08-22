@@ -95,7 +95,7 @@ def init():
     hit_female = _load_sound("colourmeunimpressed.ogg", 0.50)
     game_over = _load_sound("game_over.wav", 0.60)
     level_up = _load_sound("level_up.wav", 0.50)
-    click = _load_sound("click.wav", 0.30)
+    click = _load_sound("click.wav", 0.40)
     pause_sound = _load_sound("pause.wav", 0.40)
     enemy_laser = _load_sound("enemy_laser.wav", 0.20)
     highscore = _load_sound("highscore.mp3", 0.50)

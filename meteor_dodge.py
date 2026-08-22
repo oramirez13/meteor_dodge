@@ -1523,11 +1523,18 @@ class Game:
 
     def restart(self):
         """Vuelve al menu de inicio despues de game over."""
-        self.send_score_to_server()
-
-        # Detener todos los sonidos
+        # Detener todos los sonidos ANTES de enviar el puntaje.
+        # Asi la voz del game over se corta de inmediato cuando el
+        # jugador presiona SPACE o ENTER, y no sigue sonando durante
+        # el envio del puntaje.
         audio.stop_all_sfx()
         audio.stop_music_immediate()
+
+        # Enviar el puntaje al servidor DESPUES de limpiar el audio.
+        # Esta funcion puede tardar hasta 3 segundos si el servidor
+        # no responde, por eso va al final para que el silencio sea
+        # lo primero que se escucha al reiniciar.
+        self.send_score_to_server()
 
         # Volver al menu manteniendo el high_score
         self.state = "menu"
